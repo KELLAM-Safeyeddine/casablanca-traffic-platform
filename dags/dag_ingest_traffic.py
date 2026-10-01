@@ -8,9 +8,12 @@ from pathlib import Path
 from typing import Any
 
 import pendulum
+from airflow import Dataset
 from airflow.decorators import dag, task
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
+
+from src.validate.alerts import failure_alert
 
 
 @dag(
@@ -24,6 +27,7 @@ from airflow.operators.python import get_current_context
         "retries": 2,
         "retry_delay": timedelta(seconds=15),
         "retry_exponential_backoff": True,
+        "on_failure_callback": failure_alert,
     },
     tags=["casablanca", "raw", "replay"],
     doc_md=__doc__,
@@ -215,7 +219,7 @@ def ingest_traffic() -> None:
         finally:
             database.close()
 
-    @task
+    @task(outlets=[Dataset("casatraffic://warehouse/core")])
     def reconcile_raw(settings: dict[str, Any], paths: list[str]) -> dict[str, Any]:
         """Contrôler les fichiers mappés et confirmer le nombre de mesures représentées."""
         from src.extract.excel_reader import verify_raw

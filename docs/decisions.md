@@ -236,3 +236,34 @@ Un échantillon SQL temporaire vérifie les pointes ex æquo ; une copie tempora
 SQL final avec division par zéro prouve le rollback des quatre tables réelles.
 Le constructeur réutilisable est exécuté localement avec .env et dans Docker avec
 la Connection Airflow. Le DAG et le déclenchement automatique sont la phase 7.
+
+## D023 — chaîne de Datasets et gate qualité (phase 7)
+
+Identifiants conformes à la demande : bootstrap_dimensions, ingest_traffic,
+data_quality, build_marts ; les fichiers portent le préfixe dag_ du plan.
+Bootstrap manuel ; ingestion horaire avec mode full manuel ; sa dernière tâche
+publie casatraffic://warehouse/core après toutes les partitions chargées.
+data_quality consomme ce Dataset, valide les 13 RAW et le CORE avec pandera,
+vérifie cardinalités et formules, puis publie quality_passed uniquement en succès.
+build_marts consomme quality_passed. Cette étape intermédiaire évite de publier
+des agrégats issus d'une semaine incomplète. Premier lancement : bootstrap puis full.
+L'ingestion conserve son bootstrap idempotent pour rester relançable seule.
+Le minimum hebdomadaire exige de lire les sept jours pour figer la référence,
+même si seuls les attributs des tables 0–4 servent aux communes/points.
+
+Les Datasets représentent l'état courant, peuvent coalescer des événements et
+ne garantissent pas un run consommateur par événement. Les runs sont limités
+à un par DAG ; le contrôle CORE et les builds verrouillent leur lecture contre
+les écritures. Pas de snapshot historique ajouté à cette semaine type.
+Les contrôles CORE ne suppriment ni ne réparent les faits : une incohérence fait
+échouer la tâche et conserve les données pour investigation. Les rejets de
+sources continuent à être persistés en quarantine avant le contrôle de seuil.
+
+## D024 — alertes locales et paramètres tardifs (phase 7)
+
+Pas de service mail/Slack configuré : callback de tâche en échec après retries,
+log ERROR et fichier JSON local idempotent, consultable sur le volume quarantine.
+Le payload expose seulement DAG/run/tâche/index/état, jamais la chaîne d'exception
+qui pourrait contenir une URL de connexion. Pas de communication externe.
+Variables lues dans les tâches, connexions issues de casatraffic ; aucune
+lecture Excel, connexion PostgreSQL ou accès Variable pendant l'import des DAGs.

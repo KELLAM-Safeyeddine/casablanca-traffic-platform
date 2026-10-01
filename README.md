@@ -266,8 +266,8 @@ tables CORE en lecture, puis remplace les quatre marts dans une transaction.
 Une erreur conserve leurs versions précédentes. Les requêtes ordonnent les valeurs
 des moyennes pour rendre les résultats flottants stables après reconstruction.
 La commande locale utilise .env ; la même fonction est validée dans Docker avec
-la Connection `casatraffic`. Le DAG `build_marts` et son déclenchement après ingestion
-seront ajoutés à la phase 7. Jusqu'alors, reconstruire manuellement après une ingestion.
+la Connection `casatraffic`. Le DAG `build_marts` reconstruit automatiquement les marts
+après le succès de l'ingestion et du contrôle qualité (phase 7).
 
 Exemple de classement, exécutable dans PostgreSQL :
 
@@ -282,6 +282,49 @@ unités. Pour une analyse prédictive, distinguer la cible TTI des autres KPI de
 et construire la référence TTI seulement sur l'entraînement. Les 22 communes et cette
 seule semaine type permettent d'abord une analyse descriptive.
 
+## Orchestration Airflow (phase 7)
+
+Les quatre DAGs apparaissent sur http://localhost:8080/home :
+
+| DAG | Déclenchement | Résultat |
+|---|---|---|
+| bootstrap_dimensions | manuel | dimensions et références TTI figées |
+| ingest_traffic | horaire, ou manuel `{"mode":"full"}` | RAW → STAGING → CORE |
+| data_quality | Dataset CORE publié par ingestion | pandera RAW/CORE, rapport bloquant |
+| build_marts | Dataset qualité validée | quatre marts transactionnels |
+
+Activer les quatre DAGs dans l'interface. Après démarrage depuis zéro, lancer
+`bootstrap_dimensions`, puis `ingest_traffic` avec `{"mode":"full"}` pour charger
+la semaine entière. Le rejeu horaire utilise le même modèle :
+`{"mode":"replay","tick":0}` puis tick 1…167, et boucle à 168.
+Le contrôle qualité exige une semaine complète avant la reconstruction des marts.
+
+Chaque DAG limite ses runs simultanés à un et utilise deux retries avec backoff.
+L'ingestion mappe sept tâches par étape en mode complet, une en mode rejeu.
+Les Datasets sont publiés uniquement après succès ; une qualité échouée bloque
+le déclenchement des marts. Le rapport persiste dans
+`data/quarantine/reports/<run-portable>/warehouse_quality.json`.
+Les échecs de tâches après retries produisent un log ERROR et une alerte JSON
+dans `data/quarantine/alerts/`, sans transmission externe.
+
+Configuration runtime : Connection `casatraffic` injectée par `.env` ; Variables
+optionnelles `traffic_source_file`, `traffic_raw_root`, `traffic_replay_anchor`,
+`traffic_max_error_rate` (défaut 0,01) et `traffic_alert_root`.
+Les valeurs par défaut sont les chemins Docker montés ; ne pas mettre de secret
+dans un Dataset, une Variable ou la configuration d'un run.
+
+Vérification complète, avec deux ingestions et deux chaînes Dataset réelles :
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase7.py
+```
+
+Le contrôle compare les comptes et empreintes de toutes les tables CORE/STAGING
+et des quatre marts, vérifie la source et les Parquet immuables, et écrit
+`docs/phase7_runs.json`. Les Datasets désignent l'état courant du warehouse :
+plusieurs publications proches peuvent être regroupées par Airflow. Ils ne
+représentent ni des dates d'observation ni des snapshots historiques versionnés.
+
 ## Limites connues et suite
 
 Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
@@ -289,8 +332,8 @@ séparateur décimal, cinq indices décalés et 254 trajets dont la distance var
 La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-Les autres DAGs, les tests/CI complémentaires et le dashboard seront implémentés à leurs phases
-respectives. Les 43 tests présents couvrent lecture, publication RAW, rejeu, contrats
+Les tests/CI complémentaires et le dashboard seront implémentés aux phases 8 et 9.
+Les 51 tests présents couvrent lecture, publication RAW, rejeu, contrats
 pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
 Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,
 sans dépendre des fichiers RAW locaux ignorés par Git.
