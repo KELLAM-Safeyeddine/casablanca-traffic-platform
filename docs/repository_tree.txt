@@ -1,0 +1,147 @@
+casablanca-traffic-platform/
++-- .dockerignore
++-- .env.example
++-- .gitattributes
++-- .github/
+    +-- workflows/
+        +-- .gitkeep
+        +-- ci.yml
++-- .gitignore
++-- .pre-commit-config.yaml
++-- dags/
+    +-- .gitkeep
+    +-- dag_bootstrap_dimensions.py
+    +-- dag_build_marts.py
+    +-- dag_data_quality.py
+    +-- dag_ingest_traffic.py
++-- data/
+    +-- quarantine/ [artefacts generes, ignores par Git]
+    +-- raw/ [artefacts generes, ignores par Git]
+    +-- source/
+        +-- Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx
++-- docker-compose.yml
++-- Dockerfile.airflow
++-- Dockerfile.dashboard
++-- docs/
+    +-- business_scope.md
+    +-- data_dictionary.md
+    +-- data_quality_report.md
+    +-- decisions.md
+    +-- phase0_verification.md
+    +-- phase1_verification.md
+    +-- phase10_clean_start.json
+    +-- phase10_verification.md
+    +-- phase2_verification.md
+    +-- phase3_runs.json
+    +-- phase3_verification.md
+    +-- phase4_runs.json
+    +-- phase4_verification.md
+    +-- phase5_runs.json
+    +-- phase5_verification.md
+    +-- phase6_verification.json
+    +-- phase6_verification.md
+    +-- phase7_runs.json
+    +-- phase7_verification.md
+    +-- phase8_verification.md
+    +-- phase9_verification.json
+    +-- phase9_verification.md
+    +-- profiling/
+        +-- anomaly_examples.csv
+        +-- daily_diagnostics.csv
+        +-- hourly_tti_diagnostics.csv
+        +-- measurement_diagnostics.parquet
+        +-- workbook_profile.json
+    +-- project_plan.md
+    +-- repository_tree.txt
+    +-- screenshots/
+        +-- airflow_dags.jpg
+        +-- airflow_ingestion.jpg
+        +-- dashboard_comparison.jpg
+        +-- dashboard_heatmap.jpg
+        +-- dashboard_map.jpg
++-- notebooks/
+    +-- .gitkeep
+    +-- 02_source_profiling.ipynb
++-- pyproject.toml
++-- README.md
++-- requirements-airflow.txt
++-- requirements-dashboard.txt
++-- requirements.txt
++-- scripts/
+    +-- bootstrap_platform.py
+    +-- build_marts.py
+    +-- build_profiling_notebook.py
+    +-- extract_raw.py
+    +-- init_dashboard.py
+    +-- init_env.py
+    +-- init_postgres.sh
+    +-- profile_workbook.py
+    +-- run_integration_tests.py
+    +-- verify_clean_start.py
+    +-- verify_phase0.py
+    +-- verify_phase1.py
+    +-- verify_phase2.py
+    +-- verify_phase3.py
+    +-- verify_phase4.py
+    +-- verify_phase5.py
+    +-- verify_phase6.py
+    +-- verify_phase7.py
+    +-- verify_phase9.py
++-- sql/
+    +-- ddl/
+        +-- .gitkeep
+        +-- 00_platform.sql
+        +-- 01_quarantine.sql
+        +-- 02_warehouse.sql
+        +-- 03_dimensions_to_core.sql
+        +-- 04_partition_to_core.sql
+    +-- marts/
+        +-- .gitkeep
+        +-- 00_tables.sql
+        +-- 01_commune_hourly_congestion.sql
+        +-- 02_peak_hours.sql
+        +-- 03_weekday_vs_weekend.sql
+        +-- 04_commune_features.sql
+        +-- dashboard_measures.sql
++-- src/
+    +-- __init__.py
+    +-- dashboard.py
+    +-- extract/
+        +-- __init__.py
+        +-- .gitkeep
+        +-- excel_reader.py
+        +-- flow_simulator.py
+        +-- workbook_profile.py
+    +-- load/
+        +-- .gitkeep
+        +-- airflow_runtime.py
+        +-- dashboard_data.py
+        +-- marts.py
+        +-- quarantine.py
+        +-- warehouse.py
+    +-- transform/
+        +-- .gitkeep
+        +-- dimensions.py
+        +-- normalize.py
+    +-- validate/
+        +-- .gitkeep
+        +-- alerts.py
+        +-- normalized.py
+        +-- pipeline.py
+        +-- quality.py
+        +-- schemas.py
+        +-- warehouse_quality.py
++-- tests/
+    +-- .gitkeep
+    +-- test_dag_integrity.py
+    +-- test_dashboard.py
+    +-- test_data_quality.py
+    +-- test_environment_verification.py
+    +-- test_postgis_integration.py
+    +-- test_raw_ingestion.py
+    +-- test_transformation.py
+    +-- test_warehouse_quality.py
+    +-- test_workbook_profile.py
++-- CasaTraffic/ [venv Python 3.11, ignore par Git]
++-- .env [secrets locaux, ignore par Git]
++-- logs/ [logs Airflow, ignores par Git]

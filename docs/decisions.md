@@ -350,3 +350,27 @@ les droits si le rôle existe, sans modifier les tests PostGIS isolés.
 init_dashboard.py migre le volume existant et réutilise le secret à la relance.
 Les erreurs de connexion dans l'UI sont génériques pour ne pas exposer de secret.
 L'image tourne sous un utilisateur non root ; port lié à 127.0.0.1 seulement.
+
+## D030 — premier démarrage reproductible et validation isolée (phase 10)
+
+La qualité globale exige 73 920 faits. Sur volume vierge, l'ingestion horaire
+seule ne peut donc pas précéder le chargement de la semaine entière.
+bootstrap_platform.py attend les quatre DAGs, charge réellement dimensions et
+semaine complète via airflow dags test pendant que les DAGs consommateurs sont
+pausés, puis les active et prouve deux chaînes Dataset automatiques. Sur un
+CORE déjà complet, il conserve les dimensions et vérifie les deux chaînes.
+Les empreintes comparées excluent les horodatages techniques de journalisation.
+
+verify_clean_start.py copie le code et la source dans .validation/, crée un
+projet Compose UUID avec nouveaux secrets, quatre ports libres et un volume
+PostgreSQL neuf. Les images déjà construites sont réutilisées. Son finally
+retire exclusivement les conteneurs, le réseau et le volume de ce projet,
+après contrôle du préfixe et du chemin. La plateforme principale reste active.
+Les copies locales de diagnostic sont ignorées par Git. Le rapport JSON conserve
+les identifiants de runs, événements Dataset, effectifs et empreintes, sans secrets.
+
+Un premier essai a rencontré une interruption de connexion pendant le démarrage
+du webserver. L'attente API tolère désormais ConnectionError en plus de URLError
+et TimeoutError ; le second essai complet a réussi. Le bonus ML/corrélation reste
+une extension : les marts livrés permettent une analyse ultérieure sans
+présenter d'association statistique ou de causalité non vérifiée.

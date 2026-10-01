@@ -1,0 +1,573 @@
+{
+  "core": {
+    "dim_commune": {
+      "rows": 22,
+      "digest": "0d37a59dc047fdf7cfb50f71bc68c38d"
+    },
+    "dim_point": {
+      "rows": 110,
+      "digest": "269732126b48e8e0d3326e5c0be65a73"
+    },
+    "dim_time": {
+      "rows": 168,
+      "digest": "51ffadb8ef3ffaf9da09890173328a06"
+    },
+    "dim_trajectory": {
+      "rows": 440,
+      "digest": "4b6d3c827aa0e6f39eb0d89ac31b5dcf"
+    },
+    "fact_travel_time": {
+      "rows": 73920,
+      "digest": "fc0255ef2955c2dffef845a7206ac8b6"
+    },
+    "staging.travel_time": {
+      "rows": 73920,
+      "digest": "9bb92604a06464730efe6710692bc7ae"
+    }
+  },
+  "marts": {
+    "mart_commune_hourly_congestion": {
+      "rows": 3696,
+      "digest": "d20ebd52595f29f84dd07c54e947c0ac"
+    },
+    "mart_peak_hours": {
+      "rows": 154,
+      "digest": "b5e1898830dc682277888fdba6661053"
+    },
+    "mart_weekday_vs_weekend": {
+      "rows": 44,
+      "digest": "646ce0d9c658613c0f80f42af014322f"
+    },
+    "mart_commune_features": {
+      "rows": 22,
+      "digest": "e643dea8eaf388d8b8bdccc3f79d7079"
+    }
+  },
+  "chains": [
+    {
+      "ingestion": {
+        "run_id": "bootstrap_f7c3bf4d902b40e5a0a14bb4e7529598",
+        "conf": {
+          "mode": "full"
+        },
+        "state": "success",
+        "start_date": "2026-10-01T23:39:15.980761+00:00",
+        "end_date": "2026-10-01T23:40:28.058379+00:00",
+        "mapped_tasks": 7,
+        "tasks": [
+          {
+            "task_id": "load_traffic",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:07.862798+00:00",
+            "end_date": "2026-10-01T23:40:11.991761+00:00"
+          },
+          {
+            "task_id": "prepare_source",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:20.656634+00:00",
+            "end_date": "2026-10-01T23:39:24.068383+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:07.962126+00:00",
+            "end_date": "2026-10-01T23:40:12.042907+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:07.961460+00:00",
+            "end_date": "2026-10-01T23:40:12.043107+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:08.031146+00:00",
+            "end_date": "2026-10-01T23:40:12.206346+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:35.254983+00:00",
+            "end_date": "2026-10-01T23:39:36.634691+00:00"
+          },
+          {
+            "task_id": "plan_jobs",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:29.352344+00:00",
+            "end_date": "2026-10-01T23:39:29.554753+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:18.118581+00:00",
+            "end_date": "2026-10-01T23:40:20.819721+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:18.118619+00:00",
+            "end_date": "2026-10-01T23:40:20.978212+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:18.177249+00:00",
+            "end_date": "2026-10-01T23:40:20.978589+00:00"
+          },
+          {
+            "task_id": "validate_static",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:29.352352+00:00",
+            "end_date": "2026-10-01T23:39:31.205448+00:00"
+          },
+          {
+            "task_id": "reconcile_raw",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:26.639191+00:00",
+            "end_date": "2026-10-01T23:40:27.895891+00:00"
+          },
+          {
+            "task_id": "bootstrap_model",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:46.880572+00:00",
+            "end_date": "2026-10-01T23:39:51.110011+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:35.494729+00:00",
+            "end_date": "2026-10-01T23:39:37.050023+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:35.471943+00:00",
+            "end_date": "2026-10-01T23:39:37.049961+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:38.531394+00:00",
+            "end_date": "2026-10-01T23:39:39.584636+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:43.630569+00:00",
+            "end_date": "2026-10-01T23:39:45.329401+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:52.313686+00:00",
+            "end_date": "2026-10-01T23:39:53.896973+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:57.531405+00:00",
+            "end_date": "2026-10-01T23:39:58.897694+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:52.393740+00:00",
+            "end_date": "2026-10-01T23:39:54.099450+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:43.632774+00:00",
+            "end_date": "2026-10-01T23:39:45.026249+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:43.754142+00:00",
+            "end_date": "2026-10-01T23:39:45.462447+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:00.556800+00:00",
+            "end_date": "2026-10-01T23:40:02.017608+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:00.555820+00:00",
+            "end_date": "2026-10-01T23:40:02.050207+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:40:00.572565+00:00",
+            "end_date": "2026-10-01T23:40:02.072671+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:39:52.313664+00:00",
+            "end_date": "2026-10-01T23:39:53.891732+00:00"
+          }
+        ]
+      },
+      "quality": {
+        "dag_id": "data_quality",
+        "run_id": "dataset_triggered__2026-10-01T23:40:27.907977+00:00",
+        "state": "success",
+        "run_type": "dataset_triggered",
+        "start_date": "2026-10-01T23:40:28.047857+00:00",
+        "end_date": "2026-10-01T23:40:37.088355+00:00",
+        "task_count": 1
+      },
+      "marts": {
+        "dag_id": "build_marts",
+        "run_id": "dataset_triggered__2026-10-01T23:40:36.437186+00:00",
+        "state": "success",
+        "run_type": "dataset_triggered",
+        "start_date": "2026-10-01T23:40:37.074224+00:00",
+        "end_date": "2026-10-01T23:40:41.100284+00:00",
+        "task_count": 1
+      }
+    },
+    {
+      "ingestion": {
+        "run_id": "bootstrap_0c425038e7e8448fae0e239c0219a173",
+        "conf": {
+          "mode": "full"
+        },
+        "state": "success",
+        "start_date": "2026-10-01T23:41:21.462836+00:00",
+        "end_date": "2026-10-01T23:42:31.131703+00:00",
+        "mapped_tasks": 7,
+        "tasks": [
+          {
+            "task_id": "validate_traffic",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:03.546904+00:00",
+            "end_date": "2026-10-01T23:42:04.753995+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:03.569354+00:00",
+            "end_date": "2026-10-01T23:42:04.758027+00:00"
+          },
+          {
+            "task_id": "prepare_source",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:26.123242+00:00",
+            "end_date": "2026-10-01T23:41:29.084767+00:00"
+          },
+          {
+            "task_id": "plan_jobs",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:34.222739+00:00",
+            "end_date": "2026-10-01T23:41:34.467307+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:11.042669+00:00",
+            "end_date": "2026-10-01T23:42:15.338604+00:00"
+          },
+          {
+            "task_id": "validate_static",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:34.252023+00:00",
+            "end_date": "2026-10-01T23:41:36.067294+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:41.480842+00:00",
+            "end_date": "2026-10-01T23:41:42.496017+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:41.501298+00:00",
+            "end_date": "2026-10-01T23:41:42.510801+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:41.507061+00:00",
+            "end_date": "2026-10-01T23:41:42.510808+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:42.979153+00:00",
+            "end_date": "2026-10-01T23:41:44.054116+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:48.345575+00:00",
+            "end_date": "2026-10-01T23:41:49.537137+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:48.469540+00:00",
+            "end_date": "2026-10-01T23:41:49.580236+00:00"
+          },
+          {
+            "task_id": "extract_partition",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:48.562444+00:00",
+            "end_date": "2026-10-01T23:41:49.623835+00:00"
+          },
+          {
+            "task_id": "bootstrap_model",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:49.963420+00:00",
+            "end_date": "2026-10-01T23:41:54.047982+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:56.429584+00:00",
+            "end_date": "2026-10-01T23:41:57.802913+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 1,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:56.427646+00:00",
+            "end_date": "2026-10-01T23:41:57.819105+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:41:56.533407+00:00",
+            "end_date": "2026-10-01T23:41:58.019420+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:00.573757+00:00",
+            "end_date": "2026-10-01T23:42:01.987762+00:00"
+          },
+          {
+            "task_id": "validate_traffic",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:03.542266+00:00",
+            "end_date": "2026-10-01T23:42:04.750685+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 0,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:11.248334+00:00",
+            "end_date": "2026-10-01T23:42:15.339733+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 3,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:11.333706+00:00",
+            "end_date": "2026-10-01T23:42:15.343966+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 2,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:11.332375+00:00",
+            "end_date": "2026-10-01T23:42:15.351555+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 4,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:21.559614+00:00",
+            "end_date": "2026-10-01T23:42:24.107012+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 6,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:21.565080+00:00",
+            "end_date": "2026-10-01T23:42:24.086500+00:00"
+          },
+          {
+            "task_id": "load_traffic",
+            "map_index": 5,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:21.620300+00:00",
+            "end_date": "2026-10-01T23:42:24.247984+00:00"
+          },
+          {
+            "task_id": "reconcile_raw",
+            "map_index": -1,
+            "state": "success",
+            "start_date": "2026-10-01T23:42:29.325899+00:00",
+            "end_date": "2026-10-01T23:42:30.752453+00:00"
+          }
+        ]
+      },
+      "quality": {
+        "dag_id": "data_quality",
+        "run_id": "dataset_triggered__2026-10-01T23:42:30.762669+00:00",
+        "state": "success",
+        "run_type": "dataset_triggered",
+        "start_date": "2026-10-01T23:42:31.117481+00:00",
+        "end_date": "2026-10-01T23:42:39.884590+00:00",
+        "task_count": 1
+      },
+      "marts": {
+        "dag_id": "build_marts",
+        "run_id": "dataset_triggered__2026-10-01T23:42:38.914162+00:00",
+        "state": "success",
+        "run_type": "dataset_triggered",
+        "start_date": "2026-10-01T23:42:39.857653+00:00",
+        "end_date": "2026-10-01T23:42:43.225618+00:00",
+        "task_count": 1
+      }
+    }
+  ],
+  "dataset_events": [
+    {
+      "created_dagruns": [
+        {
+          "dag_id": "data_quality",
+          "dag_run_id": "dataset_triggered__2026-10-01T23:40:27.907977+00:00",
+          "data_interval_end": "2026-10-01T23:00:00+00:00",
+          "data_interval_start": "2026-10-01T22:00:00+00:00",
+          "end_date": "2026-10-01T23:40:37.088355+00:00",
+          "logical_date": "2026-10-01T23:40:27.907977+00:00",
+          "start_date": "2026-10-01T23:40:28.047857+00:00",
+          "state": "success"
+        }
+      ],
+      "dataset_id": 1,
+      "dataset_uri": "casatraffic://warehouse/core",
+      "extra": {},
+      "id": 2,
+      "source_dag_id": "ingest_traffic",
+      "source_map_index": -1,
+      "source_run_id": "bootstrap_f7c3bf4d902b40e5a0a14bb4e7529598",
+      "source_task_id": "reconcile_raw",
+      "timestamp": "2026-10-01T23:40:27.904845+00:00"
+    },
+    {
+      "created_dagruns": [
+        {
+          "dag_id": "build_marts",
+          "dag_run_id": "dataset_triggered__2026-10-01T23:40:36.437186+00:00",
+          "data_interval_end": "2026-10-01T23:00:00+00:00",
+          "data_interval_start": "2026-10-01T22:00:00+00:00",
+          "end_date": "2026-10-01T23:40:41.100284+00:00",
+          "logical_date": "2026-10-01T23:40:36.437186+00:00",
+          "start_date": "2026-10-01T23:40:37.074224+00:00",
+          "state": "success"
+        }
+      ],
+      "dataset_id": 2,
+      "dataset_uri": "casatraffic://warehouse/quality_passed",
+      "extra": {},
+      "id": 3,
+      "source_dag_id": "data_quality",
+      "source_map_index": -1,
+      "source_run_id": "dataset_triggered__2026-10-01T23:40:27.907977+00:00",
+      "source_task_id": "audit",
+      "timestamp": "2026-10-01T23:40:36.435245+00:00"
+    },
+    {
+      "created_dagruns": [
+        {
+          "dag_id": "data_quality",
+          "dag_run_id": "dataset_triggered__2026-10-01T23:42:30.762669+00:00",
+          "data_interval_end": "2026-10-01T23:00:00+00:00",
+          "data_interval_start": "2026-10-01T22:00:00+00:00",
+          "end_date": "2026-10-01T23:42:39.884590+00:00",
+          "logical_date": "2026-10-01T23:42:30.762669+00:00",
+          "start_date": "2026-10-01T23:42:31.117481+00:00",
+          "state": "success"
+        }
+      ],
+      "dataset_id": 1,
+      "dataset_uri": "casatraffic://warehouse/core",
+      "extra": {},
+      "id": 6,
+      "source_dag_id": "ingest_traffic",
+      "source_map_index": -1,
+      "source_run_id": "bootstrap_0c425038e7e8448fae0e239c0219a173",
+      "source_task_id": "reconcile_raw",
+      "timestamp": "2026-10-01T23:42:30.760024+00:00"
+    },
+    {
+      "created_dagruns": [
+        {
+          "dag_id": "build_marts",
+          "dag_run_id": "dataset_triggered__2026-10-01T23:42:38.914162+00:00",
+          "data_interval_end": "2026-10-01T23:00:00+00:00",
+          "data_interval_start": "2026-10-01T22:00:00+00:00",
+          "end_date": "2026-10-01T23:42:43.225618+00:00",
+          "logical_date": "2026-10-01T23:42:38.914162+00:00",
+          "start_date": "2026-10-01T23:42:39.857653+00:00",
+          "state": "success"
+        }
+      ],
+      "dataset_id": 2,
+      "dataset_uri": "casatraffic://warehouse/quality_passed",
+      "extra": {},
+      "id": 7,
+      "source_dag_id": "data_quality",
+      "source_map_index": -1,
+      "source_run_id": "dataset_triggered__2026-10-01T23:42:30.762669+00:00",
+      "source_task_id": "audit",
+      "timestamp": "2026-10-01T23:42:38.912334+00:00"
+    }
+  ],
+  "idempotent": true,
+  "clean_compose_project": "casatraffic-clean-fcaa55fec8db459aa81ed0918cfe02f0",
+  "fresh_volume": true
+}

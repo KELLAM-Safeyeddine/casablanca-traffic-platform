@@ -1,10 +1,15 @@
-# Qualité de la source — phase 2
+# Rapport de qualité des données
 
 Profilage effectué le 1 octobre 2026 sur la copie source immuable.
 SHA-256 : `4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d`.
 Notebook exécuté : `notebooks/02_source_profiling.ipynb` avec Python 3.11 dans CasaTraffic.
 Les diagnostics sont reproductibles via `scripts/profile_workbook.py`.
-Ce rapport décrit des observations et des règles candidates, aucun chargement métier.
+Le profilage initial ci-dessous est suivi des règles effectivement appliquées.
+Le chargement final contient 73 920 faits, 22 communes, 110 points et 440 trajets.
+Les 485 événements du journal (314 réparables, 171 avertissements) préservent
+les valeurs originales ; aucune mesure de cette source n'est rejetée définitivement.
+Les preuves de contrôle, d'idempotence et de démarrage vierge sont dans les rapports
+des phases 5 à 10. Les paragraphes datés des premières phases retracent le diagnostic.
 
 ## Inventaire et complétude
 

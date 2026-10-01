@@ -1,46 +1,43 @@
 # Casablanca Traffic Data Platform
 
-Plateforme de données de trafic de Casablanca : source Excel immuable, Parquet,
-validation pandera, entrepôt PostgreSQL/PostGIS et restitution Metabase.
-Le plan de référence complet est dans [docs/project_plan.md](docs/project_plan.md).
+Plateforme exécutée sur la semaine type du classeur Casablanca : 22 communes,
+110 points, 440 trajets et **73 920 observations horaires**. Les phases 0 à 10 du
+[plan](docs/project_plan.md) sont documentées avec leurs preuves dans `docs/`.
+Python 3.11, RAW Parquet immuable, pandera, PostgreSQL/PostGIS, Airflow TaskFlow
+avec dynamic task mapping, marts SQL et dashboard Streamlit dans Docker.
+Metabase est également démarré ; sa configuration applicative reste optionnelle.
 
-## État du projet
-
-Phase 0 validée : cadrage, structure, source et environnement de développement.
-Phase 1 validée : infrastructure Docker démarrée et contrôlée.
-Preuves : `docs/phase0_verification.md` et `docs/phase1_verification.md`.
-Phase 2 validée : les 13 feuilles sont profilées, le notebook est exécuté et les règles
-de nettoyage sont documentées dans `docs/data_quality_report.md`.
-Phase 3 validée : 13 Parquet RAW immuables, 168 partitions de rejeu horaire et
-le DAG `ingest_traffic` exécuté avec dynamic task mapping. Preuves dans
-`docs/phase3_verification.md` et `docs/phase3_runs.json`.
-Phase 4 validée : contrats pandera, journal PostgreSQL `quarantine` et gate qualité
-intégrés à l'ingestion. Preuves : `docs/phase4_verification.md` et `docs/phase4_runs.json`.
-Phase 5 validée : unités et clés normalisées, modèle STAGING/CORE chargé avec
-22 communes, 110 points, 168 créneaux, 440 trajets et 73 920 faits.
-Preuves d'idempotence et de rollback : `docs/phase5_runs.json`, `docs/phase5_verification.md`.
-Phase 6 validée : quatre marts reconstruits en SQL, vérifiés par un oracle pandas
-indépendant, avec idempotence et rollback. Preuves : `docs/phase6_verification.md`.
-Les phases 7 à 10 restent à réaliser.
-
-## Architecture cible
+## Architecture
 
 ```mermaid
 flowchart LR
-    Excel[Excel immuable] --> Airflow[Airflow dans Docker]
-    Replay[Simulateur horaire - phase 3] --> Airflow
-    Airflow --> Raw[RAW Parquet]
-    Raw --> Validation[pandera et quarantine]
-    Validation --> Staging[STAGING PostgreSQL]
-    Staging --> Core[CORE PostGIS]
-    Core --> Marts[Marts SQL]
-    Marts --> Metabase[Metabase]
+    Excel[Excel source immuable] --> Ingest[ingest_traffic : full ou rejeu horaire]
+    Bootstrap[bootstrap_dimensions] --> Dimensions[Dimensions PostGIS]
+    Ingest --> RAW[Parquet RAW et provenance]
+    RAW --> Gate[pandera et corrections tracées]
+    Gate --> Q[quarantine : motif et payload]
+    Gate --> STAGING[STAGING PostgreSQL]
+    STAGING --> CORE[CORE : dimensions et faits]
+    Dimensions --> CORE
+    CORE --> Quality[data_quality : Dataset CORE]
+    Quality --> Build[build_marts : Dataset qualité validée]
+    Build --> Marts[4 marts SQL]
+    CORE --> Dashboard[Streamlit : carte et agrégats filtrés]
+    Marts --> Audit[Réconciliation des agrégats du dashboard]
 ```
 
-## Développement local (Windows PowerShell)
+L'ingestion remplace une partition jour/heure dans une transaction, sous verrou.
+Les clés uniques empêchent les doublons ; les dimensions et la référence de temps
+libre sont figées pour cette source. Les quatre marts sont reconstruits ensemble,
+uniquement après un audit réussi d'un CORE complet. Les erreurs déclenchent un
+journal JSON local ; aucun message externe n'est envoyé.
 
-Python **3.11** et Docker Desktop avec moteur Linux sont obligatoires.
-Toutes les commandes Python utilisent explicitement le venv `CasaTraffic`.
+## Installation depuis zéro — Windows PowerShell
+
+Prérequis : Python **3.11**, Git et Docker Desktop avec moteur Linux. Si Python
+3.11 est absent, l'installer avant de continuer. Prévoir environ 8 Go de RAM
+disponibles pour Docker et Internet pour télécharger les images et dépendances.
+Le classeur fourni doit se trouver, sans modification, dans `data/source/`.
 
 ```powershell
 cd casablanca-traffic-platform
@@ -48,284 +45,110 @@ py -3.11 -m venv CasaTraffic
 .\CasaTraffic\Scripts\python.exe --version
 .\CasaTraffic\Scripts\python.exe -m pip install -r requirements.txt
 .\CasaTraffic\Scripts\python.exe -m pip check
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase0.py
-.\CasaTraffic\Scripts\python.exe -m ruff check .
-.\CasaTraffic\Scripts\python.exe -m pytest -q
-```
-
-Linux : créer avec `python3.11 -m venv CasaTraffic` et remplacer l'exécutable
-par `CasaTraffic/bin/python`. Airflow est installé exclusivement dans l'image Docker.
-
-## Lancement Docker
-
-```powershell
 .\CasaTraffic\Scripts\python.exe scripts/init_env.py
 docker compose config --quiet
 docker compose up -d --build
+.\CasaTraffic\Scripts\python.exe scripts/bootstrap_platform.py
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase9.py
 docker compose ps --all
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase1.py
 ```
 
-`init_env.py` crée .env avec des secrets aléatoires. S'il existe déjà, conserver
-le fichier : ne pas relancer la génération. `.env.example` décrit les variables.
-Airflow : http://localhost:8080 (identifiants `AIRFLOW_ADMIN_USERNAME` et
-`AIRFLOW_ADMIN_PASSWORD` dans .env). Metabase : http://localhost:3000.
-PostgreSQL : localhost:5432 ; base `traffic`, rôle `traffic`, mot de passe
-`TRAFFIC_DB_PASSWORD` de .env. Les ports sont configurables et liés à 127.0.0.1.
+`init_env.py` génère des secrets aléatoires et refuse d'écraser un `.env` existant.
+Conserver ce fichier lors des redémarrages. `bootstrap_platform.py` attend les
+quatre DAGs et l'absence d'erreur d'import. Sur volume neuf, il exécute réellement
+les tâches de dimensions et d'ingestion complète avant d'activer les horaires et
+Datasets, puis vérifie deux chaînes automatiques ingestion → qualité → marts,
+avec comparaison des effectifs et empreintes. La preuve de cette commande sur
+un volume vierge est dans [phase10_clean_start.json](docs/phase10_clean_start.json).
 
-La configuration suit [la documentation Docker Airflow 2.11.2](https://airflow.apache.org/docs/apache-airflow/2.11.2/howto/docker-compose/)
-avec LocalExecutor. Metabase utilise [une base applicative PostgreSQL](https://www.metabase.com/docs/latest/installation-and-operation/running-metabase-on-docker).
-Prévoir au moins 4 Go de mémoire Docker, idéalement 8 Go.
+Linux/macOS : `python3.11 -m venv CasaTraffic`, puis remplacer l'exécutable local
+par `CasaTraffic/bin/python` dans toutes les commandes. Airflow n'est jamais
+installé dans CasaTraffic ; `requirements-airflow.txt` appartient à son image.
 
-`airflow-init` se termine avec le code 0 après migration et création du compte.
-Les quatre services permanents doivent être healthy. Les dossiers DAGs sont vides
-à la phase 1 : les DAGs métier seront ajoutés en phases 3 à 7.
-Metabase démarre sur l'assistant initial ; les visualisations seront configurées en phase 9.
-
-```powershell
-# Arrêt en conservant les données
-docker compose down
-# Redémarrage avec les mêmes données et secrets
-docker compose up -d
-# Diagnostics
-docker compose logs --tail 100 airflow-scheduler airflow-webserver metabase
-```
-
-Le volume `postgres_data` conserve les bases. Ne pas utiliser `down --volumes`
-pour un simple redémarrage. Le SQL initial ne s'exécute que sur un volume vide.
-Pour un autre poste neuf : recréer CasaTraffic, installer les requirements, fournir
-la source identique et générer un nouveau .env, puis exécuter les commandes de lancement.
-
-## Données et objectifs
-
-Source : `data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx`.
-Ne jamais enregistrer de modification dans ce classeur.
-SHA-256 : `4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d`.
-
-Objectifs à vérifier après profilage et chargement : 22 communes, 110 points,
-440 trajets et 73 920 mesures (7 jours × 24 heures × 440 trajets).
-La semaine est une semaine type, sans date d'observation.
-Le dictionnaire provisoire est dans `docs/data_dictionary.md` ; les KPI dans
-`docs/business_scope.md` ; les décisions dans `docs/decisions.md`.
-
-## Reproduire le profilage (phase 2)
-
-```powershell
-.\CasaTraffic\Scripts\python.exe scripts/profile_workbook.py
-.\CasaTraffic\Scripts\python.exe -m ipykernel install --prefix .\CasaTraffic --name casatraffic --display-name "CasaTraffic (Python 3.11)"
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase2.py
-.\CasaTraffic\Scripts\python.exe -m jupyter lab notebooks/02_source_profiling.ipynb
-```
-
-Sélectionner `CasaTraffic (Python 3.11)` dans Jupyter. Le vérificateur exécute les
-sept cellules de code avec ce kernel, vérifie la source et conserve les sorties.
-Les 73 920 diagnostics Parquet sont dans `docs/profiling/` : ce sont des résultats
-exploratoires avec valeurs brutes et candidates, pas la couche RAW de production.
-
-## Ingestion RAW et simulateur (phase 3)
-
-```powershell
-.\CasaTraffic\Scripts\python.exe scripts/extract_raw.py
-# Une heure : tick 0 = lundi 00 h, tick 24 = mardi 00 h
-.\CasaTraffic\Scripts\python.exe -m src.extract.flow_simulator --source "data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx" --raw-root data/raw --tick 0
-# Semaine type complète, 168 tranches
-.\CasaTraffic\Scripts\python.exe -m src.extract.flow_simulator --source "data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx" --raw-root data/raw --tick 0 --steps 168
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase3.py
-.\CasaTraffic\Scripts\python.exe -m pytest -q
-.\CasaTraffic\Scripts\python.exe -m ruff check .
-```
-
-Les fichiers sont sous `data/raw/source_sha256=<empreinte>/` : Summary et tables
-0–11 ; le rejeu sous `replay/day=1..7/hour=00..23.parquet`. Chaque fichier conserve
-`_ingested_at` UTC, `_source_file`, `_sheet`, `_source_sha256`, `_payload_sha256`
-et le numéro de ligne Excel. Les labels commune/ZIP bruts restent également présents.
-Les temps, distances, indices et TTI ne sont pas corrigés dans RAW.
-Les partitions existantes sont vérifiées puis réutilisées sans changer leurs octets.
-
-Dans [Airflow](http://localhost:8080), activer `ingest_traffic` puis déclencher
-avec la configuration `{"mode":"full"}` pour les sept jours mappés, ou
-`{"mode":"replay","tick":0}` pour une tranche. La planification `@hourly`
-utilise le mode replay par défaut ; le vérificateur active le DAG et laisse ce
-rejeu horaire actif. Sans tick explicite, le tick est dérivé de l'intervalle logique
-Airflow et d'une ancre de simulation UTC. Les Variables facultatives sont
-`traffic_source_file`, `traffic_raw_root`, `traffic_replay_anchor`
-(défaut `2026-01-05T00:00:00Z`). Le tick boucle modulo 168 ; il ne crée pas de date
-d'observation. Aucun appel réseau à Waze n'est effectué.
-
-La concurrence est limitée à quatre tâches ; les sept jours passent en deux vagues.
-Le vérificateur déclenche quatre runs réels et consigne leurs états et horodatages.
-Les trois autres DAGs seront ajoutés à la phase 7. Le DAG d'ingestion charge maintenant les faits.
-
-## Validation et quarantine (phase 4)
-
-```powershell
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase4.py
-.\CasaTraffic\Scripts\python.exe -m pytest -q
-.\CasaTraffic\Scripts\python.exe -m ruff check .
-```
-
-Chaque run `ingest_traffic` valide les références, puis chaque jour/tranche par mapping.
-Les schémas contrôlent types, nombres finis, bornes géographiques, temps >0,
-TTI source ≥1, comptes entiers, cardinalités et unicité. Les contrôles référentiels
-vérifient commune/ZIP et la concordance index/coordonnées avec Table 0.
-Les nombres sont convertis dans une vue temporaire de validation ; le RAW reste intact.
-
-Les anomalies sont insérées dans `traffic.public.quarantine` via la Connection
-Airflow `casatraffic`, avec payload brut JSON, feuille, ligne Excel, heure et motif.
-`hour=-1` signifie une anomalie de ligne entière. Un identifiant déterministe et
-un upsert évitent les doublons ; la première observation est conservée.
-Les rapports par run sont sous `data/quarantine/reports/`, avec noms compatibles Windows.
-
-Trois sévérités : `rejected` bloque la mesure, `repairable` impose une correction
-en phase 5, `warning` signale un TTI >5. Les indices connus 110–114 ne sont réparables
-que si la source et les coordonnées confirment le crosswalk ; aucun décalage général
-n'est appliqué. Un TTI source positif <1 est conservé pour recalcul à partir du temps.
-Il ne sera pas chargé tel quel dans le fait. Les compteurs réconcilient toutes les mesures.
-
-La Variable `traffic_max_error_rate` vaut **0.01** par défaut. Après persistance
-des événements et du rapport, un taux de rejet **strictement supérieur à 1 %**
-fait échouer la tâche. Les cas réparables et avertissements sont audités séparément.
-Le seuil s'applique à chaque partition ; au-delà du seuil, le run ne poursuit pas
-vers la réconciliation finale. Ne pas désactiver la journalisation pour contourner un rejet.
-
-Sur la source : **70 557 mesures sans réparation bloquante, 3 363 réparables,
-0 rejet bloquant**, total 73 920. La table quarantine contient **485 événements**
-(314 réparables et 171 avertissements) après plusieurs runs identiques.
-Une mesure peut avoir plusieurs motifs ; un événement sur une ligne quotidienne
-peut concerner ses 24 heures. Les 198 lignes des tables 0–4 satisfont leurs contrats.
-Ces classes décrivent le RAW : la phase 5 répare les cas admissibles avant CORE.
-
-## STAGING et CORE (phase 5)
-
-```powershell
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase5.py
-.\CasaTraffic\Scripts\python.exe -m pytest -q
-.\CasaTraffic\Scripts\python.exe -m ruff check .
-```
-
-Déclencher `ingest_traffic` avec `{"mode":"full"}` charge les sept jours ; le mode
-`{"mode":"replay","tick":0}` remplace uniquement le lundi à 00 h. Le DAG valide
-les références, initialise les dimensions et la référence TTI, puis charge les jours
-par dynamic task mapping. Ce bootstrap sera également exposé par le DAG manuel
-de phase 7. Il lit les sept jours pour confirmer la référence, même en mode rejeu.
-
-Tables STAGING : `staging.commune`, `staging.point`, `staging.trajectory`,
-`staging.travel_time`. Tables CORE dans `public` : `dim_commune`, `dim_point`,
-`dim_time`, `dim_trajectory`, `fact_travel_time`. Le DDL s'applique au volume existant.
-Les règles D010–D012 sont implémentées ; aucune écriture dans le classeur ou le RAW.
-
-La distance devient km ; les grands temps entiers sont corrigés seulement pour le
-SHA-256 diagnostiqué. Les clés commune normalisent Unicode, espaces et casse.
-Chaque mesure garde temps/distance/indices bruts, conversions, TTI fourni, écart,
-provenance et référence. Le TTI et la vitesse sont calculés en SQL versionné :
-`travel_time_min / free_flow_reference_min` et `60 * distance_observed_km / travel_time_min`.
-Pandera prévalide ces valeurs avec la référence figée ; PostgreSQL impose également
-les bornes, clés primaires et étrangères. Les échecs sont journalisés avant le gate.
-
-Les clés sont déterministes : commune_id = ZIP numérique, point_id = index Table 0,
-trajectory_id = origine ×110 + destination +1 ; dim_time utilise (jour ISO, heure).
-La géométrie WGS84 est générée par PostgreSQL avec longitude en X et latitude en Y.
-La référence du lundi et le minimum hebdomadaire des trajets sont conservés ; une
-référence différente exige une migration explicite, pas une mise à jour silencieuse.
-
-Chaque partition STAGING et CORE est remplacée dans une même transaction, avec
-verrous par jour/heure. Une erreur annule les deux remplacements. Les autres heures
-restent présentes pendant un rejeu. Les jours d'un full commitent séparément ; un
-run partiellement échoué se reprend par relance idempotente. Le vérificateur compare
-les comptes et empreintes de contenu des dimensions et des mesures après full/full
-et replay/replay, puis injecte une panne SQL temporaire pour prouver le rollback.
-
-État constaté : **73 920 lignes dans STAGING et fact_travel_time**, sans doublon.
-TTI minimum 1, moyenne 1,323890 et maximum 4,548759. 70 810 écarts absolus >0,1
-avec le TTI fourni sont signalés ; la différence de référence est documentée.
-
-## Data marts (phase 6)
-
-```powershell
-.\CasaTraffic\Scripts\python.exe scripts/build_marts.py
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase6.py
-```
-
-Les quatre tables sont dans `traffic.public` et leurs SQL dans `sql/marts/` :
-
-| Mart | Grain | Lignes constatées |
-|---|---|---:|
-| mart_commune_hourly_congestion | commune × jour × heure | 3 696 |
-| mart_peak_hours | commune × jour × heure maximale, égalités conservées | 154 |
-| mart_weekday_vs_weekend | commune × is_weekend | 44 |
-| mart_commune_features | commune, KPI et attributs urbains | 22 |
-
-Les agrégats utilisent le TTI recalculé et la commune d'origine. Chaque observation
-a le même poids. Le p95 est interpolé depuis les faits ; les p95 horaires ne sont
-pas moyennés pour produire un p95 hebdomadaire. Chaque groupe horaire a 20 mesures ;
-chaque commune a 2 400 mesures lundi–vendredi et 960 samedi–dimanche.
-Les effectifs et nombre de jours sont exposés pour comparer les moyennes.
-
-Le constructeur exige la semaine type complète (73 920 faits), verrouille les
-tables CORE en lecture, puis remplace les quatre marts dans une transaction.
-Une erreur conserve leurs versions précédentes. Les requêtes ordonnent les valeurs
-des moyennes pour rendre les résultats flottants stables après reconstruction.
-La commande locale utilise .env ; la même fonction est validée dans Docker avec
-la Connection `casatraffic`. Le DAG `build_marts` reconstruit automatiquement les marts
-après le succès de l'ingestion et du contrôle qualité (phase 7).
-
-Exemple de classement, exécutable dans PostgreSQL :
-
-```sql
-SELECT nom, measurement_count, tti_mean, tti_p95
-FROM public.mart_commune_features
-ORDER BY tti_mean DESC, commune_id;
-```
-
-`mart_commune_features` conserve les variables urbaines avec leur précision et leurs
-unités. Pour une analyse prédictive, distinguer la cible TTI des autres KPI de congestion
-et construire la référence TTI seulement sur l'entraînement. Les 22 communes et cette
-seule semaine type permettent d'abord une analyse descriptive.
-
-## Orchestration Airflow (phase 7)
-
-Les quatre DAGs apparaissent sur http://localhost:8080/home :
-
-| DAG | Déclenchement | Résultat |
+| Service | Adresse locale | Accès |
 |---|---|---|
-| bootstrap_dimensions | manuel | dimensions et références TTI figées |
-| ingest_traffic | horaire, ou manuel `{"mode":"full"}` | RAW → STAGING → CORE |
-| data_quality | Dataset CORE publié par ingestion | pandera RAW/CORE, rapport bloquant |
-| build_marts | Dataset qualité validée | quatre marts transactionnels |
+| Dashboard livré | http://localhost:8501/ | Carte, heatmap, comparaison et classement |
+| Airflow | http://localhost:8080/ | Identifiants `AIRFLOW_ADMIN_*` du `.env` |
+| Metabase | http://localhost:3000/ | Assistant de configuration non effectué |
+| PostgreSQL/PostGIS | 127.0.0.1:5432 | Bases et rôles séparés, secrets `.env` |
 
-Activer les quatre DAGs dans l'interface. Après démarrage depuis zéro, lancer
-`bootstrap_dimensions`, puis `ingest_traffic` avec `{"mode":"full"}` pour charger
-la semaine entière. Le rejeu horaire utilise le même modèle :
-`{"mode":"replay","tick":0}` puis tick 1…167, et boucle à 168.
-Le contrôle qualité exige une semaine complète avant la reconstruction des marts.
+Tous les ports sont liés à localhost. Le rôle `traffic_dashboard` n'a que SELECT
+sur les quatre tables CORE nécessaires et utilise des transactions en lecture
+seule. Le DAG utilise la Connection `casatraffic`, fournie par
+`AIRFLOW_CONN_CASATRAFFIC` dans Compose. Les Variables Airflow facultatives sont
+`traffic_source_file`, `traffic_raw_root`, `traffic_replay_anchor`,
+`traffic_max_error_rate` et `traffic_alert_root` ; les chemins par défaut sont
+ceux du conteneur. La configuration est lue pendant les tâches dans
+`src/load/airflow_runtime.py`, `dags/dag_ingest_traffic.py` et `src/validate/alerts.py`.
 
-Chaque DAG limite ses runs simultanés à un et utilise deux retries avec backoff.
-L'ingestion mappe sept tâches par étape en mode complet, une en mode rejeu.
-Les Datasets sont publiés uniquement après succès ; une qualité échouée bloque
-le déclenchement des marts. Le rapport persiste dans
-`data/quarantine/reports/<run-portable>/warehouse_quality.json`.
-Les échecs de tâches après retries produisent un log ERROR et une alerte JSON
-dans `data/quarantine/alerts/`, sans transmission externe.
+## Exploitation et rejeu
 
-Configuration runtime : Connection `casatraffic` injectée par `.env` ; Variables
-optionnelles `traffic_source_file`, `traffic_raw_root`, `traffic_replay_anchor`,
-`traffic_max_error_rate` (défaut 0,01) et `traffic_alert_root`.
-Les valeurs par défaut sont les chemins Docker montés ; ne pas mettre de secret
-dans un Dataset, une Variable ou la configuration d'un run.
-
-Vérification complète, avec deux ingestions et deux chaînes Dataset réelles :
+Redémarrer sans effacer les données :
 
 ```powershell
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase7.py
+docker compose down
+docker compose up -d
+.\CasaTraffic\Scripts\python.exe scripts/bootstrap_platform.py
 ```
 
-Le contrôle compare les comptes et empreintes de toutes les tables CORE/STAGING
-et des quatre marts, vérifie la source et les Parquet immuables, et écrit
-`docs/phase7_runs.json`. Les Datasets désignent l'état courant du warehouse :
-plusieurs publications proches peuvent être regroupées par Airflow. Ils ne
-représentent ni des dates d'observation ni des snapshots historiques versionnés.
+Le volume PostgreSQL est conservé. Sur un ancien volume créé avant le compte
+dashboard, exécuter `scripts/init_dashboard.py` avec le Python CasaTraffic pour
+migrer ce rôle sans réinitialiser la base.
 
-## Tests et CI (phase 8)
+Dans Airflow, `ingest_traffic` accepte `{"mode":"full"}` pour les sept jours,
+ou `{"mode":"replay","tick":0}` pour lundi à 00 h. Le déclenchement horaire
+rejoue la semaine type modulo 168 ; il ne représente pas des observations datées.
+Le simulateur peut aussi produire ses 168 partitions immuables localement :
+
+```powershell
+.\CasaTraffic\Scripts\python.exe -m src.extract.flow_simulator --source data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx --raw-root data/raw --tick 0 --steps 168
+```
+
+Une partition RAW déjà présente est contrôlée par ses empreintes et réutilisée.
+Les rejets, réparations et avertissements portent un identifiant stable dans
+`public.quarantine`. Le seuil d'erreur s'applique après conservation des rejets.
+Les rapports et alertes sont dans `data/quarantine/`; les logs Airflow dans `logs/`.
+L'audit global contrôle les 73 920 mesures, les références, les unités et les
+formules avant publication du Dataset qualité. Les Datasets coalescent les
+événements : les marts reflètent l'état actuel, sans historique de snapshots.
+
+## Modèle et qualité
+
+| Table | Grain | Lignes |
+|---|---|---:|
+| dim_commune | Commune | 22 |
+| dim_point | Point géographique | 110 |
+| dim_time | Jour ISO × heure | 168 |
+| dim_trajectory | Origine × destination observée | 440 |
+| fact_travel_time | Trajet × jour × heure | 73 920 |
+| mart_commune_hourly_congestion | Commune × jour × heure | 3 696 |
+| mart_peak_hours | Heures de pointe journalières, ex æquo inclus | 154 |
+| mart_weekday_vs_weekend | Commune × période | 44 |
+| mart_commune_features | Commune | 22 |
+
+Le [dictionnaire](docs/data_dictionary.md) précise clés, unités et champs d'audit.
+Le [rapport qualité](docs/data_quality_report.md) contient les observations,
+réparations et limites. Résultats sur la source fournie :
+
+| Anomalie | Traitement |
+|---|---|
+| En-têtes fusionnés, communes/ZIP absents | Lecture des trois niveaux ; propagation limitée aux cellules fusionnées |
+| Distances mixtes | 2 764 valeurs quotidiennes converties de mètres en km, soit 66 336 mesures |
+| Temps entiers multipliés par 1 000 | 42 174 valeurs corrigées, règle réservée au SHA-256 de ce classeur |
+| Indices 110–114 incohérents | Correspondance unique vers 105–109, 280 événements tracés |
+| 34 TTI <1 et 171 TTI >5 | Valeurs fournies conservées ; recalcul et journalisation |
+| Population/ménages fractionnaires | 14 communes pour chaque champ ; précision conservée |
+| Noms irréguliers | Unicode NFKC, espaces et casse normalisés ; aucune correspondance floue |
+
+Le TTI publié vaut `travel_time_min / min(travel_time_min)` du trajet sur les
+168 créneaux corrigés. Cette référence empirique n'est pas une vitesse libre
+mesurée indépendamment. Le TTI moyen vaut 1,323890 et son p95 1,815377.
+70 810 observations ont un écart absolu >0,1 avec le TTI fourni. La suite annoncée
+des maxima 5, 6, …, 23 n'est pas observée dans le fichier analysé.
+Le journal contient 485 événements (314 réparables, 171 avertissements), **aucun
+rejet définitif** sur cette source. Les lignes réparées restent dans les faits.
+
+## Vérification et CI
 
 ```powershell
 .\CasaTraffic\Scripts\python.exe -m ruff check .
@@ -336,93 +159,54 @@ $env:PATH = "$PWD\CasaTraffic\Scripts;$env:PATH"
 .\CasaTraffic\Scripts\python.exe -m pre_commit run --all-files
 ```
 
-Garder `CasaTraffic/Scripts` en tête du PATH de la session qui exécute `git commit`
-(ou activer CasaTraffic). Les hooks locaux utilisent ce Python et ses versions
-épinglées ; pre-commit ne crée pas d'environnement Python supplémentaire.
-Sous Linux, utiliser `CasaTraffic/bin/python` et
-`export PATH="$PWD/CasaTraffic/bin:$PATH"`.
+Les tests PostgreSQL utilisent une base temporaire identifiée, pas la base de
+trafic courante. Ils prouvent la stabilité d'un second chargement, la conservation
+d'un rejet et le rollback atomique en cas d'échec SQL. Les trois tests de DAG
+sont exécutés dans l'image Airflow, où Airflow est installé ; leur saut local est
+attendu. Les quatre tests dashboard exécutent aussi l'application avec AppTest.
+`.github/workflows/ci.yml` vérifie lint, tests et construction des deux images.
+La CI est configurée ; aucun run GitHub n'est revendiqué, aucun remote n'étant
+configuré dans ce dépôt.
 
-Le pytest ordinaire passe les 55 tests indépendants des services. Il ignore
-explicitement deux tests PostGIS et trois tests Airflow. Le script d'intégration
-crée un conteneur PostGIS jetable, un port local aléatoire et un secret aléatoire ;
-il lance les 57 tests applicatifs puis supprime ce conteneur, même après échec.
-Il n'utilise ni le warehouse existant ni ses fichiers RAW. Une tranche de
-440 mesures vérifie idempotence, rejet explicite et rollback STAGING/CORE.
-
-Airflow reste dans Docker. Les trois tests de DAGs vérifient imports, cycles,
-mapping, politique d'échec et Datasets dans l'image de production :
+Pour refaire le contrôle complet sur un volume neuf isolé :
 
 ```powershell
-docker build --file Dockerfile.airflow --tag casatraffic-ci:latest .
-docker run --rm --entrypoint python -v "${PWD}/tests:/opt/airflow/tests:ro" casatraffic-ci:latest -m unittest discover -s /opt/airflow/tests -p test_dag_integrity.py -v
-docker run --rm --entrypoint python casatraffic-ci:latest -m pip check
+.\CasaTraffic\Scripts\python.exe scripts/verify_clean_start.py
 ```
 
-`.github/workflows/ci.yml` lance trois jobs Ubuntu à chaque push/PR et sur demande :
-lint + tests unitaires/PostGIS + pre-commit dans CasaTraffic ; build Docker + tests
-des DAGs + pip check dans l'image Airflow ; build et pip check du dashboard.
-Aucun secret du poste requis en CI,
-aucune publication d'image ni déploiement. Le dépôt local n'a actuellement pas
-de remote GitHub ; le workflow est configuré et ses commandes ont été exécutées
-localement, mais aucun run hébergé GitHub Actions n'est encore disponible.
+Ce contrôle réutilise les images construites, crée des ports/secrets/volume
+distincts et retire exclusivement ses ressources Docker temporaires à la fin.
+Les preuves de chaque phase, dont l'idempotence des quatre DAGs, sont dans `docs/`.
 
-## Dashboard (phase 9)
+## Dashboard et captures
 
-Ouvrir **http://localhost:8501**. Streamlit tourne dans Docker et lit PostgreSQL
-avec le compte `traffic_dashboard` limité à SELECT sur les quatre tables CORE
-nécessaires. Metabase reste disponible sur le port 3000 ; il n'est pas initialisé.
-Le plan autorise les deux outils. Streamlit permet les couleurs des points par
-TTI et une heatmap native, sans adapter des régions géographiques à des points.
+La carte affiche le TTI moyen par point ; le fond CARTO demande Internet et WebGL.
+La heatmap compare les communes par heure. La comparaison semaine/week-end utilise
+les mêmes communes/heures, indépendamment du filtre jours, comme indiqué dans
+l'interface. Le classement et les p95 sont calculés directement sur les faits
+filtrés, sans moyenner des percentiles ; les agrégats hebdomadaires sont vérifiés
+contre les marts. Cache de 60 secondes, actualisation manuelle et export CSV.
 
-```powershell
-# Sur un volume existant, après bootstrap_dimensions :
-.\CasaTraffic\Scripts\python.exe -m pip install -r requirements.txt
-.\CasaTraffic\Scripts\python.exe scripts/init_dashboard.py
-docker compose up -d --build dashboard
-.\CasaTraffic\Scripts\python.exe scripts/verify_phase9.py
-```
+![Carte et indicateurs](docs/screenshots/dashboard_map.jpg)
+![Heatmap commune et heure](docs/screenshots/dashboard_heatmap.jpg)
+![Comparaison et classement](docs/screenshots/dashboard_comparison.jpg)
+![Quatre DAGs Airflow](docs/screenshots/airflow_dags.jpg)
+![Exécutions et tâches en succès](docs/screenshots/airflow_ingestion.jpg)
 
-Depuis un volume neuf, `scripts/init_env.py` génère le secret du dashboard et
-l'init PostgreSQL crée son rôle. Le bootstrap attribue ensuite les droits SELECT.
-Lancer une ingestion `{"mode":"full"}` avant d'interpréter les graphiques.
-Le script `init_dashboard.py` reste relançable pour migrer un volume existant.
-Les secrets restent dans `.env` ; le port 8501 est lié uniquement à localhost.
+## Structure et limites
 
-Quatre vues, au même grain métier :
+L'[arborescence complète](docs/repository_tree.txt) détaille les fichiers livrés.
+`dags/`, `src/{extract,transform,validate,load}`, `sql/{ddl,marts}`, `tests/`,
+`notebooks/`, `data/{source,raw,quarantine}` et `docs/` suivent le plan.
+CasaTraffic, `.env`, RAW généré, logs et ressources temporaires sont ignorés par Git.
 
-- Carte des **110 points d'origine**, coordonnées extraites des géométries PostGIS,
-  couleur du TTI moyen, infobulle point/commune/TTI et zoom.
-- Heatmap **commune × heure**, moyenne des observations sur les jours sélectionnés.
-- Comparaison lundi–vendredi / samedi–dimanche : moyennes et p95, effectifs au survol.
-- Classement des **22 communes** par TTI moyen, p95 et vitesse ; téléchargement CSV.
+La source couvre une semaine type, sans dates d'observation ni trafic en direct.
+Les corrections dépendant du classeur doivent être réévaluées pour une nouvelle
+source. Les variations de distance restent conservées dans les faits ; la
+dimension trajet utilise la référence du lundi. L'unité de densité source est
+inconnue ; la densité calculée par km² est un champ distinct.
 
-Les filtres communes/jours/heures s'appliquent aux KPI, à la carte, à la heatmap
-et au classement. La comparaison conserve toujours les deux périodes, pour les
-mêmes communes/heures ; cette règle est affichée sous son graphique.
-Le p95 provient directement des faits, jamais de moyennes de p95.
-Une sélection vide produit un message ; un CORE incomplet affiche un avertissement.
-Les données sont mises en cache 60 secondes, avec un bouton d'actualisation.
-
-La palette des points va du bleu (TTI 1) au rouge (TTI ≥2), avec valeur exacte au
-survol. Le plafonnement de la couleur n'altère pas les KPI. Le fond CARTO requiert
-Internet ; les points/coordonnées et autres graphiques restent issus de PostgreSQL.
-La carte requiert un navigateur WebGL. Le fond externe ne reçoit aucun secret SQL.
-
-![Carte et KPI du dashboard](docs/screenshots/dashboard_map.jpg)
-
-[Heatmap](docs/screenshots/dashboard_heatmap.jpg) ·
-[Comparaison et classement](docs/screenshots/dashboard_comparison.jpg) ·
-[Vérifications détaillées](docs/phase9_verification.md)
-
-## Limites connues et suite
-
-Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
-séparateur décimal, cinq indices décalés et 254 trajets dont la distance varie.
-La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
-Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
-urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-La documentation finale et les captures complètes restent la phase 10.
-Les 55 tests locaux autonomes couvrent lecture, publication RAW, rejeu, contrats
-pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
-Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,
-sans dépendre des fichiers RAW locaux ignorés par Git.
+Extensions possibles : données datées supplémentaires, historique des snapshots,
+alertes externes configurées, tableau Metabase, déploiement avec TLS et sauvegardes,
+modèles de congestion après validation statistique. Spark, Kafka et dbt ne sont
+pas nécessaires au volume actuel et ne sont pas implémentés.

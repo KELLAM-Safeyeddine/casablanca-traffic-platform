@@ -19,7 +19,9 @@ Les mesures ont un poids identique ; aucun volume de véhicules n'est fourni.
 | Vitesse | distance_km / (travel_time_min / 60) | Trajet × jour × heure |
 | Vitesse moyenne | Moyenne arithmétique des vitesses valides | Commune × jour × heure |
 
-Le temps de référence en circulation fluide sera défini après profilage (phase 2).
+Le temps de référence est le minimum empirique corrigé du trajet sur les
+168 créneaux de la source, figé dans dim_trajectory. Ce n'est pas une mesure
+indépendante de circulation fluide.
 TTI = temps observé / temps de référence du même trajet. Conserver le TTI fourni,
 le recalculé et leur écart pour audit. Ne pas traiter les valeurs annoncées comme vérifiées.
 
