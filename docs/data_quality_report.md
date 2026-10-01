@@ -216,3 +216,34 @@ inconnues, doublons, colonnes absentes et comptes fractionnaires. Chaque rejet e
 localisé et compté ; les cas manquants ne sont pas masqués par une suppression.
 Le gate de rejet >1 % est testé, y compris la persistance du journal avant l'exception.
 Rapport d'exécution : `docs/phase4_runs.json` ; détails : `docs/phase4_verification.md`.
+
+## Résultats chargés et vérifiés en phase 5
+
+Les conversions et réparations sont maintenant effectives dans STAGING et CORE.
+Les 73 920 mesures source sont chargées : **aucun rejet supplémentaire** lors de
+la validation normalisée. Le journal reste à 485 événements historiques après relance.
+
+| Vérification en base | Résultat |
+|---|---:|
+| Communes / points / trajets | 22 / 110 / 440 |
+| Créneaux dim_time | 168 |
+| STAGING et fact_travel_time | 73 920 chacune |
+| Temps remis à l'échelle | 42 174 |
+| Mesures avec distance convertie | 66 336 = 2 764 lignes/jour ×24 |
+| Mesures avec indice réparé | 3 360 |
+| TTI fournis <1 conservés et recalculés | 34 |
+| Écart absolu TTI >0,1 | 70 810 |
+| Géométries valides, SRID et axes corrects | 110 |
+| Trajets avec distances quotidiennes variables | 254 |
+| Erreurs des formules TTI/vitesse | 0 |
+
+TTI recalculé stocké : minimum **1**, moyenne **1,323890**, maximum **4,548759**.
+Écart absolu moyen au fourni : **1,125586**, conforme au diagnostic de phase 2.
+La référence empirique différente explique une grande partie de cet écart : il ne
+signifie pas 70 810 temps erronés. Aucun TTI fourni <1 n'est chargé comme TTI analytique.
+Les temps, distances, indices et TTI fournis restent auditables dans chaque fait.
+
+Les snapshots de contenu sont identiques après un second full et les rejeux 0/168.
+Une panne SQL injectée après les remplacements STAGING/CORE annule toute la transaction ;
+les empreintes restent identiques. L'Excel et les treize Parquet RAW sont inchangés.
+Preuves machine : `docs/phase5_runs.json` ; vérification : `docs/phase5_verification.md`.

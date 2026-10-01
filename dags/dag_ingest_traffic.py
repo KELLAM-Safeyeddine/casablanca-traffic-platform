@@ -1,6 +1,6 @@
 """Ingestion RAW : sept jours mappés en mode complet, une tranche par tick en mode rejeu.
 
-La validation et quarantine précèdent le chargement des faits, ajouté en phase 5.
+Validation, normalisation, STAGING et CORE sont réconciliés par partition.
 """
 
 from datetime import timedelta
@@ -157,6 +157,65 @@ def ingest_traffic() -> None:
             database.close()
 
     @task
+    def bootstrap_model(settings: dict[str, Any], static: dict[str, Any]) -> dict[str, int]:
+        """Figer les dimensions et la référence TTI avant les partitions de faits."""
+        import psycopg2
+        from airflow.hooks.base import BaseHook
+
+        from src.load.warehouse import bootstrap_warehouse
+
+        connection = BaseHook.get_connection("casatraffic")
+        database = psycopg2.connect(
+            host=connection.host,
+            port=connection.port,
+            dbname=connection.schema,
+            user=connection.login,
+            password=connection.password,
+        )
+        try:
+            return bootstrap_warehouse(
+                Path(settings["source"]),
+                Path(settings["raw_root"]),
+                database,
+                static["run_id"],
+                static["threshold"],
+            )
+        finally:
+            database.close()
+
+    @task
+    def load_traffic(
+        quality: dict[str, Any], dimensions: dict[str, int], static: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Charger une partition validée après disponibilité des dimensions."""
+        import psycopg2
+        from airflow.hooks.base import BaseHook
+
+        from src.extract.excel_reader import verify_raw
+        from src.load.warehouse import load_partition
+
+        if dimensions["dim_trajectory"] != 440:
+            raise ValueError("Dimensions incomplètes")
+        connection = BaseHook.get_connection("casatraffic")
+        database = psycopg2.connect(
+            host=connection.host,
+            port=connection.port,
+            dbname=connection.schema,
+            user=connection.login,
+            password=connection.password,
+        )
+        try:
+            return load_partition(
+                Path(quality["raw_path"]),
+                verify_raw(Path(static["points_path"])),
+                database,
+                static["run_id"],
+                static["threshold"],
+            )
+        finally:
+            database.close()
+
+    @task
     def reconcile_raw(settings: dict[str, Any], paths: list[str]) -> dict[str, Any]:
         """Contrôler les fichiers mappés et confirmer le nombre de mesures représentées."""
         from src.extract.excel_reader import verify_raw
@@ -182,8 +241,10 @@ def ingest_traffic() -> None:
     paths = extract_partition.partial(settings=settings).expand(job=plan_jobs(settings))
     static = validate_static(settings)
     validated = validate_traffic.partial(static=static).expand(path=paths)
+    dimensions = bootstrap_model(settings, static)
+    loaded = load_traffic.partial(dimensions=dimensions, static=static).expand(quality=validated)
     reconciliation = reconcile_raw(settings, paths)
-    validated >> reconciliation
+    loaded >> reconciliation
 
 
 ingest_traffic()

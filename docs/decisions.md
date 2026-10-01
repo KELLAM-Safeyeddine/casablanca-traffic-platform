@@ -161,3 +161,44 @@ sont exposés séparément. Le DDL idempotent est appliqué à l'exécution, ce 
 aussi sur le volume PostgreSQL déjà créé. Les tâches utilisent la Connection casatraffic.
 Les rapports par run gardent le run_id original dans le JSON ; leur dossier remplace les
 caractères incompatibles Windows et ajoute un hash pour éviter les collisions de noms.
+
+## D018 — modèle et clés déterministes (phase 5)
+
+CORE dans public, STAGING dans le schéma staging ; SQL métier versionné sous sql/ddl
+pour respecter l'arborescence imposée. commune_id = ZIP numérique (unique dans cette
+source), point_id = index Table 0, trajectory_id = origine ×110 + destination +1.
+Ces identifiants ne dépendent ni de l'ordre d'exécution ni des séquences PostgreSQL.
+Les libellés originaux et ZIP texte sont conservés ; clé Unicode NFKC/espaces/casse.
+Conserver population/ménages fractionnaires et les deux champs de densité D013.
+Géométrie générée Point SRID 4326, index GiST, longitude X / latitude Y :
+https://postgis.net/docs/ST_MakePoint.html
+Périodes dim_time : matin 7–9, soir 17–19, nuit <6 ou >=22, creuse sinon.
+Ces plages sont des conventions analytiques, pas des heures de pointe mesurées.
+
+## D019 — référence, prévalidation et rejeu (phase 5)
+
+Minimum des temps corrigés admissibles sur les 168 heures, indépendant du TTI fourni.
+Stocker le minimum et le SHA-256 dans dim_trajectory ; une relance vérifie leur égalité
+et ne les remplace pas. Distance de référence du lundi ; distance observée dans le fait.
+Le bootstrap vérifie les références et prépare la semaine entière même lors d'un rejeu.
+Ce petit volume rend ce choix simple et reproductible ; le rejeu charge une seule heure.
+Avant CORE : validation normalisée, puis prévalidation TTI/vitesse avec référence
+en base ; les formules finales restent exécutées en SQL, contrôlées par contraintes.
+Les rejets sont persistés avant le seuil et exclus par clé explicite ligne/heure.
+Les alertes RAW réparables restent dans le journal historique ; les valeurs corrigées
+et leurs indicateurs sont dans les faits. Aucun temps n'est reconstruit depuis le TTI.
+
+## D020 — transactions et version de source (phase 5)
+
+Remplacement delete+insert de la partition (source, jour, heures) STAGING, puis
+transformation SQL et remplacement CORE, dans la même transaction. Verrou advisory
+transactionnel par heure, acquis en ordre croissant ; bootstrap/DDL ont leurs verrous.
+Rollback des deux couches sur erreur, sans effacer les événements déjà journalisés.
+Référence : https://www.postgresql.org/docs/16/explicit-locking.html
+Les jours mappés commitent indépendamment ; la relance reprend une ingestion interrompue.
+Les dimensions utilisent ON CONFLICT DO NOTHING car la source est immuable et unique ;
+la référence TTI figée est comparée à chaque bootstrap. Une autre source/semaine/historique
+requiert un modèle versionné et une migration explicite : pas d'écrasement implicite.
+Le vérificateur conserve le premier état vide et les runs successifs dans son rapport,
+compare les empreintes des données métier, et injecte une division par zéro dans une
+copie SQL temporaire pour tester le rollback réel après remplacement de la partition.

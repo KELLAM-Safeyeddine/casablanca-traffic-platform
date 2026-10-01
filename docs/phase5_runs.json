@@ -1,0 +1,1126 @@
+{
+  "initial": {
+    "dim_commune": {
+      "rows": 0,
+      "digest": null
+    },
+    "dim_point": {
+      "rows": 0,
+      "digest": null
+    },
+    "dim_time": {
+      "rows": 0,
+      "digest": null
+    },
+    "dim_trajectory": {
+      "rows": 0,
+      "digest": null
+    },
+    "fact_travel_time": {
+      "rows": 0,
+      "digest": null
+    },
+    "staging.travel_time": {
+      "rows": 0,
+      "digest": null
+    }
+  },
+  "final": {
+    "dim_commune": {
+      "rows": 22,
+      "digest": "0d37a59dc047fdf7cfb50f71bc68c38d"
+    },
+    "dim_point": {
+      "rows": 110,
+      "digest": "269732126b48e8e0d3326e5c0be65a73"
+    },
+    "dim_time": {
+      "rows": 168,
+      "digest": "51ffadb8ef3ffaf9da09890173328a06"
+    },
+    "dim_trajectory": {
+      "rows": 440,
+      "digest": "4b6d3c827aa0e6f39eb0d89ac31b5dcf"
+    },
+    "fact_travel_time": {
+      "rows": 73920,
+      "digest": "fc0255ef2955c2dffef845a7206ac8b6"
+    },
+    "staging.travel_time": {
+      "rows": 73920,
+      "digest": "9bb92604a06464730efe6710692bc7ae"
+    }
+  },
+  "metrics": {
+    "time_scaled": 42174,
+    "distance_scaled": 66336,
+    "index_repaired": 3360,
+    "source_tti_below_one": 34,
+    "tti_gap_flag": 70810,
+    "tti_min": 1.0,
+    "tti_mean": 1.3238901006988755,
+    "tti_max": 4.548759376803231,
+    "mean_abs_tti_delta": 1.1255857002786642,
+    "formula_errors": 0,
+    "valid_geometries": 110,
+    "trajectories_with_variable_distance": 254,
+    "quarantine_events": 485
+  },
+  "idempotent_content": true,
+  "source_and_raw_unchanged": true,
+  "runs": [
+    {
+      "run_id": "phase5_c1249e25ba4e4355bbf61bd3c7cb3148",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:24:25.142428+00:00",
+      "end_date": "2026-10-01T22:24:54.467972+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:30.450392+00:00",
+          "end_date": "2026-10-01T22:24:31.569932+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:30.450338+00:00",
+          "end_date": "2026-10-01T22:24:31.618002+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:30.545750+00:00",
+          "end_date": "2026-10-01T22:24:31.801149+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:32.802931+00:00",
+          "end_date": "2026-10-01T22:24:33.854644+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:32.802091+00:00",
+          "end_date": "2026-10-01T22:24:33.858503+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:32.756902+00:00",
+          "end_date": "2026-10-01T22:24:33.865088+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:32.804509+00:00",
+          "end_date": "2026-10-01T22:24:33.868539+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:44.044868+00:00",
+          "end_date": "2026-10-01T22:24:46.802129+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:44.090600+00:00",
+          "end_date": "2026-10-01T22:24:46.988509+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:48.869688+00:00",
+          "end_date": "2026-10-01T22:24:51.304194+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:44.044757+00:00",
+          "end_date": "2026-10-01T22:24:46.797253+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:44.044622+00:00",
+          "end_date": "2026-10-01T22:24:46.806577+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:48.869657+00:00",
+          "end_date": "2026-10-01T22:24:51.208449+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:48.869507+00:00",
+          "end_date": "2026-10-01T22:24:51.304016+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:52.677017+00:00",
+          "end_date": "2026-10-01T22:24:53.920376+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:25.427517+00:00",
+          "end_date": "2026-10-01T22:24:28.453022+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:29.053276+00:00",
+          "end_date": "2026-10-01T22:24:29.541270+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:35.550119+00:00",
+          "end_date": "2026-10-01T22:24:39.661353+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:35.558640+00:00",
+          "end_date": "2026-10-01T22:24:37.079257+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:35.558788+00:00",
+          "end_date": "2026-10-01T22:24:37.101860+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:29.053279+00:00",
+          "end_date": "2026-10-01T22:24:30.795930+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:41.564561+00:00",
+          "end_date": "2026-10-01T22:24:42.865422+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:35.558759+00:00",
+          "end_date": "2026-10-01T22:24:37.123016+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:38.711987+00:00",
+          "end_date": "2026-10-01T22:24:40.204027+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:38.712355+00:00",
+          "end_date": "2026-10-01T22:24:40.214476+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:38.712319+00:00",
+          "end_date": "2026-10-01T22:24:40.237882+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_3893f517de15477a97d8d85862ad848d",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:24:57.767774+00:00",
+      "end_date": "2026-10-01T22:25:27.850031+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:24:57.994409+00:00",
+          "end_date": "2026-10-01T22:25:01.266014+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:13.032869+00:00",
+          "end_date": "2026-10-01T22:25:14.480756+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:02.675438+00:00",
+          "end_date": "2026-10-01T22:25:03.080471+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:02.676961+00:00",
+          "end_date": "2026-10-01T22:25:04.496520+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:03.771329+00:00",
+          "end_date": "2026-10-01T22:25:04.808123+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:03.767807+00:00",
+          "end_date": "2026-10-01T22:25:04.815861+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:03.834633+00:00",
+          "end_date": "2026-10-01T22:25:04.867303+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:06.913522+00:00",
+          "end_date": "2026-10-01T22:25:07.910928+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:06.914098+00:00",
+          "end_date": "2026-10-01T22:25:07.911717+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:06.914213+00:00",
+          "end_date": "2026-10-01T22:25:07.910854+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:06.914105+00:00",
+          "end_date": "2026-10-01T22:25:07.964045+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:09.912166+00:00",
+          "end_date": "2026-10-01T22:25:11.352430+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:09.911587+00:00",
+          "end_date": "2026-10-01T22:25:11.342003+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:09.913151+00:00",
+          "end_date": "2026-10-01T22:25:11.371874+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:09.896951+00:00",
+          "end_date": "2026-10-01T22:25:14.010288+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:13.030196+00:00",
+          "end_date": "2026-10-01T22:25:14.491929+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:13.030225+00:00",
+          "end_date": "2026-10-01T22:25:14.516681+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:16.220820+00:00",
+          "end_date": "2026-10-01T22:25:17.403742+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:18.216853+00:00",
+          "end_date": "2026-10-01T22:25:21.096358+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:18.216846+00:00",
+          "end_date": "2026-10-01T22:25:21.164854+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:18.216920+00:00",
+          "end_date": "2026-10-01T22:25:21.202858+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:18.249889+00:00",
+          "end_date": "2026-10-01T22:25:21.327763+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:23.105568+00:00",
+          "end_date": "2026-10-01T22:25:25.343546+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:23.104712+00:00",
+          "end_date": "2026-10-01T22:25:25.343536+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:23.105444+00:00",
+          "end_date": "2026-10-01T22:25:25.381378+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:26.075599+00:00",
+          "end_date": "2026-10-01T22:25:27.417003+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_51d1a2ba044e4d0ebc8a60995257d7ff",
+      "conf": {
+        "mode": "replay",
+        "tick": 0
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:25:29.878517+00:00",
+      "end_date": "2026-10-01T22:25:47.102615+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:30.162414+00:00",
+          "end_date": "2026-10-01T22:25:33.709048+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:35.083572+00:00",
+          "end_date": "2026-10-01T22:25:35.444867+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:35.083621+00:00",
+          "end_date": "2026-10-01T22:25:36.765568+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:36.180988+00:00",
+          "end_date": "2026-10-01T22:25:37.261348+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:37.269569+00:00",
+          "end_date": "2026-10-01T22:25:41.207788+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:38.398810+00:00",
+          "end_date": "2026-10-01T22:25:39.765565+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:42.088990+00:00",
+          "end_date": "2026-10-01T22:25:43.967101+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:45.235428+00:00",
+          "end_date": "2026-10-01T22:25:46.279250+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_37d6a3741f5744c7a92ab819b09e4485",
+      "conf": {
+        "mode": "replay",
+        "tick": 168
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:25:50.059480+00:00",
+      "end_date": "2026-10-01T22:26:07.338215+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:55.184707+00:00",
+          "end_date": "2026-10-01T22:25:55.517539+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:26:05.616774+00:00",
+          "end_date": "2026-10-01T22:26:06.624716+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:58.226845+00:00",
+          "end_date": "2026-10-01T22:25:59.876977+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:58.205154+00:00",
+          "end_date": "2026-10-01T22:26:02.108293+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:26:03.193897+00:00",
+          "end_date": "2026-10-01T22:26:04.880453+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:50.293282+00:00",
+          "end_date": "2026-10-01T22:25:53.854246+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:55.184637+00:00",
+          "end_date": "2026-10-01T22:25:56.680845+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:25:56.412647+00:00",
+          "end_date": "2026-10-01T22:25:57.268544+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_ba11293b90fc4313a2cbe5b828fe4462",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:28:09.306047+00:00",
+      "end_date": "2026-10-01T22:28:39.893670+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:09.585098+00:00",
+          "end_date": "2026-10-01T22:28:12.943836+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:16.580301+00:00",
+          "end_date": "2026-10-01T22:28:17.683472+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:13.469910+00:00",
+          "end_date": "2026-10-01T22:28:15.125797+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:14.577248+00:00",
+          "end_date": "2026-10-01T22:28:15.549672+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:14.577250+00:00",
+          "end_date": "2026-10-01T22:28:15.549959+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:14.637755+00:00",
+          "end_date": "2026-10-01T22:28:15.575909+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:16.616649+00:00",
+          "end_date": "2026-10-01T22:28:17.694823+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:16.618517+00:00",
+          "end_date": "2026-10-01T22:28:17.697430+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:16.616427+00:00",
+          "end_date": "2026-10-01T22:28:17.746973+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:25.914357+00:00",
+          "end_date": "2026-10-01T22:28:27.371030+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:19.873615+00:00",
+          "end_date": "2026-10-01T22:28:21.335083+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:19.873437+00:00",
+          "end_date": "2026-10-01T22:28:21.355302+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:19.874392+00:00",
+          "end_date": "2026-10-01T22:28:21.352984+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:23.715171+00:00",
+          "end_date": "2026-10-01T22:28:25.080966+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:23.719022+00:00",
+          "end_date": "2026-10-01T22:28:25.088600+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:23.715158+00:00",
+          "end_date": "2026-10-01T22:28:25.095517+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:37.980739+00:00",
+          "end_date": "2026-10-01T22:28:39.238227+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:13.469905+00:00",
+          "end_date": "2026-10-01T22:28:13.841414+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:19.860667+00:00",
+          "end_date": "2026-10-01T22:28:23.697075+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:35.061961+00:00",
+          "end_date": "2026-10-01T22:28:37.523759+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:28.602928+00:00",
+          "end_date": "2026-10-01T22:28:32.513769+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:28.609007+00:00",
+          "end_date": "2026-10-01T22:28:32.553940+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:28.604942+00:00",
+          "end_date": "2026-10-01T22:28:32.561895+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:28.646523+00:00",
+          "end_date": "2026-10-01T22:28:32.616049+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:35.061129+00:00",
+          "end_date": "2026-10-01T22:28:37.522610+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:35.061261+00:00",
+          "end_date": "2026-10-01T22:28:37.522610+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_e518a19d3d4e4354b144bc322859f3db",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:28:44.301006+00:00",
+      "end_date": "2026-10-01T22:29:12.131703+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:44.622393+00:00",
+          "end_date": "2026-10-01T22:28:47.236257+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:48.041204+00:00",
+          "end_date": "2026-10-01T22:28:48.383891+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:48.041287+00:00",
+          "end_date": "2026-10-01T22:28:49.699999+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:02.878251+00:00",
+          "end_date": "2026-10-01T22:29:05.780905+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:49.162015+00:00",
+          "end_date": "2026-10-01T22:28:50.513237+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:49.162003+00:00",
+          "end_date": "2026-10-01T22:28:50.485210+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:49.241274+00:00",
+          "end_date": "2026-10-01T22:28:50.513978+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:51.401773+00:00",
+          "end_date": "2026-10-01T22:28:52.522447+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:51.430897+00:00",
+          "end_date": "2026-10-01T22:28:52.519160+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:51.436582+00:00",
+          "end_date": "2026-10-01T22:28:52.519169+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:51.436732+00:00",
+          "end_date": "2026-10-01T22:28:52.518989+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:54.273908+00:00",
+          "end_date": "2026-10-01T22:28:55.925176+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:54.274054+00:00",
+          "end_date": "2026-10-01T22:28:55.919037+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:54.266773+00:00",
+          "end_date": "2026-10-01T22:28:58.604907+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:54.274029+00:00",
+          "end_date": "2026-10-01T22:28:55.911824+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:57.186097+00:00",
+          "end_date": "2026-10-01T22:28:58.823357+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:57.186091+00:00",
+          "end_date": "2026-10-01T22:28:58.816078+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:28:57.271644+00:00",
+          "end_date": "2026-10-01T22:28:59.318315+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:00.821812+00:00",
+          "end_date": "2026-10-01T22:29:02.428378+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:02.878769+00:00",
+          "end_date": "2026-10-01T22:29:05.776243+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:02.876557+00:00",
+          "end_date": "2026-10-01T22:29:05.776537+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:04.186729+00:00",
+          "end_date": "2026-10-01T22:29:06.728560+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:07.319656+00:00",
+          "end_date": "2026-10-01T22:29:10.007651+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:07.322247+00:00",
+          "end_date": "2026-10-01T22:29:10.004766+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:07.318476+00:00",
+          "end_date": "2026-10-01T22:29:10.010198+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:10.501413+00:00",
+          "end_date": "2026-10-01T22:29:11.695019+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_14d596c26bec4f278ab972a5a00113f0",
+      "conf": {
+        "mode": "replay",
+        "tick": 0
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:29:16.451287+00:00",
+      "end_date": "2026-10-01T22:29:31.576817+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:23.561780+00:00",
+          "end_date": "2026-10-01T22:29:24.953318+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:29.749032+00:00",
+          "end_date": "2026-10-01T22:29:30.953124+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:16.708312+00:00",
+          "end_date": "2026-10-01T22:29:19.657030+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:21.692921+00:00",
+          "end_date": "2026-10-01T22:29:22.585796+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:22.459646+00:00",
+          "end_date": "2026-10-01T22:29:25.979578+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:26.857093+00:00",
+          "end_date": "2026-10-01T22:29:28.344867+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:20.584882+00:00",
+          "end_date": "2026-10-01T22:29:21.939733+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:20.586864+00:00",
+          "end_date": "2026-10-01T22:29:20.924568+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase5_69b375b87d1d48b68e192b5fad48ad93",
+      "conf": {
+        "mode": "replay",
+        "tick": 168
+      },
+      "state": "success",
+      "start_date": "2026-10-01T22:29:33.408660+00:00",
+      "end_date": "2026-10-01T22:29:48.544800+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:38.723313+00:00",
+          "end_date": "2026-10-01T22:29:39.681819+00:00"
+        },
+        {
+          "task_id": "validate_static",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:37.649945+00:00",
+          "end_date": "2026-10-01T22:29:39.023975+00:00"
+        },
+        {
+          "task_id": "load_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:44.751106+00:00",
+          "end_date": "2026-10-01T22:29:46.072058+00:00"
+        },
+        {
+          "task_id": "validate_traffic",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:40.941743+00:00",
+          "end_date": "2026-10-01T22:29:42.243874+00:00"
+        },
+        {
+          "task_id": "bootstrap_model",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:39.806922+00:00",
+          "end_date": "2026-10-01T22:29:43.627954+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:46.995773+00:00",
+          "end_date": "2026-10-01T22:29:47.829072+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:33.749514+00:00",
+          "end_date": "2026-10-01T22:29:36.971930+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T22:29:37.650127+00:00",
+          "end_date": "2026-10-01T22:29:37.959932+00:00"
+        }
+      ]
+    }
+  ],
+  "rollback_verified": true
+}

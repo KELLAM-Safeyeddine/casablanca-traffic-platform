@@ -54,3 +54,27 @@ Le payload garde les valeurs RAW et leur provenance. Les métriques réparables 
 
 Marts prévus : `mart_commune_hourly_congestion`, `mart_peak_hours`,
 `mart_weekday_vs_weekend`, `mart_commune_features`.
+
+## Modèle implémenté en phase 5
+
+- `public.dim_commune` : commune_id = ZIP numérique, nom, nom_key, zip texte,
+  population, households, density_source, population_density_per_km2, tram_stations,
+  bus_stations, primary_roads, secondary_roads, highways, surfaces *_area_m2,
+  commercial_buildings. Précision des populations/ménages conservée.
+- `public.dim_point` : point_id 0–109, commune_id, lat, lon, geom Point SRID 4326
+  générée ; longitude X, latitude Y ; index GiST.
+- `public.dim_time` : clé (day_of_week, hour), is_weekend, period.
+- `public.dim_trajectory` : trajectory_id = origine ×110 + destination +1,
+  origin_point_id, dest_point_id, distance_km du lundi, free_flow_reference_min
+  figée et reference_source_sha256.
+- `staging.travel_time` : clé (source_sha256, trajectory_id, day_of_week, hour),
+  travel_time_min, distance_km et les valeurs/indicateurs d'audit ; 73 920 lignes.
+- `public.fact_travel_time` : clé (trajectory_id, day_of_week, hour), travel_time_min,
+  tti, speed_kmh, distance_observed_km, free_flow_reference_min, tti_provided,
+  tti_delta = recalculé − fourni, tti_gap_flag (écart absolu >0,1), source_tti_flag
+  (fourni <1 ou >5), travel_time_raw, distance_raw, time_scaled, distance_scaled,
+  index_repaired, origin_index_raw, dest_index_raw, source_sha256, source_file,
+  sheet, excel_row. 73 920 lignes chargées et vérifiées.
+
+Les tables staging.commune, staging.point et staging.trajectory précèdent leurs
+dimensions CORE. Le DDL et les deux transformations SQL sont dans sql/ddl/02–04.

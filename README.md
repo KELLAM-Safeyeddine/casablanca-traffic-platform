@@ -16,8 +16,10 @@ le DAG `ingest_traffic` exécuté avec dynamic task mapping. Preuves dans
 `docs/phase3_verification.md` et `docs/phase3_runs.json`.
 Phase 4 validée : contrats pandera, journal PostgreSQL `quarantine` et gate qualité
 intégrés à l'ingestion. Preuves : `docs/phase4_verification.md` et `docs/phase4_runs.json`.
-Les phases 5 à 10 restent à réaliser.
-Aucune mesure métier n'est encore chargée ; les cardinalités du plan sont des objectifs.
+Phase 5 validée : unités et clés normalisées, modèle STAGING/CORE chargé avec
+22 communes, 110 points, 168 créneaux, 440 trajets et 73 920 faits.
+Preuves d'idempotence et de rollback : `docs/phase5_runs.json`, `docs/phase5_verification.md`.
+Les phases 6 à 10 restent à réaliser.
 
 ## Architecture cible
 
@@ -150,7 +152,7 @@ d'observation. Aucun appel réseau à Waze n'est effectué.
 
 La concurrence est limitée à quatre tâches ; les sept jours passent en deux vagues.
 Le vérificateur déclenche quatre runs réels et consigne leurs états et horodatages.
-Les trois autres DAGs seront ajoutés à la phase 7. Le chargement des faits reste la phase 5.
+Les trois autres DAGs seront ajoutés à la phase 7. Le DAG d'ingestion charge maintenant les faits.
 
 ## Validation et quarantine (phase 4)
 
@@ -189,6 +191,51 @@ Sur la source : **70 557 mesures sans réparation bloquante, 3 363 réparables,
 (314 réparables et 171 avertissements) après plusieurs runs identiques.
 Une mesure peut avoir plusieurs motifs ; un événement sur une ligne quotidienne
 peut concerner ses 24 heures. Les 198 lignes des tables 0–4 satisfont leurs contrats.
+Ces classes décrivent le RAW : la phase 5 répare les cas admissibles avant CORE.
+
+## STAGING et CORE (phase 5)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase5.py
+.\CasaTraffic\Scripts\python.exe -m pytest -q
+.\CasaTraffic\Scripts\python.exe -m ruff check .
+```
+
+Déclencher `ingest_traffic` avec `{"mode":"full"}` charge les sept jours ; le mode
+`{"mode":"replay","tick":0}` remplace uniquement le lundi à 00 h. Le DAG valide
+les références, initialise les dimensions et la référence TTI, puis charge les jours
+par dynamic task mapping. Ce bootstrap sera également exposé par le DAG manuel
+de phase 7. Il lit les sept jours pour confirmer la référence, même en mode rejeu.
+
+Tables STAGING : `staging.commune`, `staging.point`, `staging.trajectory`,
+`staging.travel_time`. Tables CORE dans `public` : `dim_commune`, `dim_point`,
+`dim_time`, `dim_trajectory`, `fact_travel_time`. Le DDL s'applique au volume existant.
+Les règles D010–D012 sont implémentées ; aucune écriture dans le classeur ou le RAW.
+
+La distance devient km ; les grands temps entiers sont corrigés seulement pour le
+SHA-256 diagnostiqué. Les clés commune normalisent Unicode, espaces et casse.
+Chaque mesure garde temps/distance/indices bruts, conversions, TTI fourni, écart,
+provenance et référence. Le TTI et la vitesse sont calculés en SQL versionné :
+`travel_time_min / free_flow_reference_min` et `60 * distance_observed_km / travel_time_min`.
+Pandera prévalide ces valeurs avec la référence figée ; PostgreSQL impose également
+les bornes, clés primaires et étrangères. Les échecs sont journalisés avant le gate.
+
+Les clés sont déterministes : commune_id = ZIP numérique, point_id = index Table 0,
+trajectory_id = origine ×110 + destination +1 ; dim_time utilise (jour ISO, heure).
+La géométrie WGS84 est générée par PostgreSQL avec longitude en X et latitude en Y.
+La référence du lundi et le minimum hebdomadaire des trajets sont conservés ; une
+référence différente exige une migration explicite, pas une mise à jour silencieuse.
+
+Chaque partition STAGING et CORE est remplacée dans une même transaction, avec
+verrous par jour/heure. Une erreur annule les deux remplacements. Les autres heures
+restent présentes pendant un rejeu. Les jours d'un full commitent séparément ; un
+run partiellement échoué se reprend par relance idempotente. Le vérificateur compare
+les comptes et empreintes de contenu des dimensions et des mesures après full/full
+et replay/replay, puis injecte une panne SQL temporaire pour prouver le rollback.
+
+État constaté : **73 920 lignes dans STAGING et fact_travel_time**, sans doublon.
+TTI minimum 1, moyenne 1,323890 et maximum 4,548759. 70 810 écarts absolus >0,1
+avec le TTI fourni sont signalés ; la différence de référence est documentée.
 
 ## Limites connues et suite
 
@@ -198,7 +245,7 @@ La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente 
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
 Les autres DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases
-respectives. Les 37 tests présents couvrent lecture, publication RAW, rejeu, contrats
-pandera, rejets et cas réparables, références, doublons, seuil et persistance avant échec.
+respectives. Les 43 tests présents couvrent lecture, publication RAW, rejeu, contrats
+pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
 Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,
 sans dépendre des fichiers RAW locaux ignorés par Git.
