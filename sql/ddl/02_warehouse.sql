@@ -111,3 +111,11 @@ CREATE TABLE IF NOT EXISTS public.fact_travel_time (
 );
 CREATE INDEX IF NOT EXISTS fact_travel_time_day_hour_idx
     ON public.fact_travel_time (day_of_week, hour);
+
+-- Le rôle est créé au premier init Docker ; absent dans les tests SQL isolés.
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'traffic_dashboard') THEN
+        GRANT SELECT ON public.dim_commune, public.dim_point, public.dim_trajectory,
+            public.fact_travel_time TO traffic_dashboard;
+    END IF;
+END $$;

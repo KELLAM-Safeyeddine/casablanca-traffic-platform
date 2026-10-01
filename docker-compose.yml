@@ -43,6 +43,7 @@ services:
       AIRFLOW_DB_PASSWORD: ${AIRFLOW_DB_PASSWORD:?Generate .env}
       TRAFFIC_DB_PASSWORD: ${TRAFFIC_DB_PASSWORD:?Generate .env}
       METABASE_DB_PASSWORD: ${METABASE_DB_PASSWORD:?Generate .env}
+      DASHBOARD_DB_PASSWORD: ${DASHBOARD_DB_PASSWORD:?Generate .env}
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -127,6 +128,28 @@ services:
       timeout: 10s
       retries: 30
       start_period: 120s
+    restart: unless-stopped
+
+  dashboard:
+    image: casablanca-traffic-dashboard:python3.11
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    environment:
+      DASHBOARD_DB_HOST: postgres
+      DASHBOARD_DB_PASSWORD: ${DASHBOARD_DB_PASSWORD:?Run scripts/init_dashboard.py}
+      STREAMLIT_THEME_PRIMARY_COLOR: "#188b91"
+    ports:
+      - "127.0.0.1:${DASHBOARD_PORT:-8501}:8501"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     restart: unless-stopped
 
 volumes:

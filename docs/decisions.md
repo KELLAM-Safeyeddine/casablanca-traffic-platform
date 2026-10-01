@@ -309,3 +309,44 @@ https://docs.github.com/en/actions/tutorials/build-and-test-code/python
 Dans la session de vérification Windows, les commandes pre-commit/Git élevées
 utilisent safe.directory limité à ce dépôt via GIT_CONFIG_* du processus pour
 le dépôt appartenant au compte sandbox. Aucun changement de configuration Git globale.
+
+## D028 — dashboard Streamlit en Docker (phase 9)
+
+Le plan autorise Metabase ou Streamlit. La documentation Metabase indique que
+les valeurs supplémentaires d'un pin map alimentent les infobulles et non la
+couleur des points. Pour respecter exactement la carte des 110 points colorés
+par TTI et la heatmap commune/heure, Streamlit + pydeck + Plotly sont retenus :
+https://www.metabase.com/docs/latest/questions/visualizations/map
+https://docs.streamlit.io/develop/api-reference/charts/st.pydeck_chart
+Metabase est conservé dans Compose, disponible mais non initialisé. Pas de compte
+Metabase créé ni de dashboard revendiqué dans son UI. Le dashboard livré est
+Streamlit, service Docker supplémentaire, port local 8501.
+
+Python 3.11 dans l'image ; versions streamlit 1.64.0, plotly 7.1.0 et pydeck 0.9.3
+vérifiées dans les métadonnées officielles PyPI et épinglées dans requirements.txt
+et requirements-dashboard.txt. Packages locaux installés uniquement dans CasaTraffic.
+Le SQL de lecture est versionné dans sql/marts/dashboard_measures.sql, séparé
+des scripts 00–04 reconstruisant les marts. Les coordonnées viennent de ST_X/ST_Y.
+
+Lecture des 73 920 observations dans un snapshot PostgreSQL ; chaque vue agrège
+les faits filtrés pour conserver la pondération et le p95 exact. Les valeurs
+hebdomadaires sont réconciliées avec mart_commune_features. Cache d'une minute
+avec bouton d'actualisation. Comparaison semaine/week-end indépendante du filtre
+jours, mais même communes/heures, règle explicite dans l'UI pour comparer les
+deux périodes. Aucun filtre de dates inventées ni analyse causale/ML ajoutée.
+
+Palette continue commune aux cartes : bleu TTI=1, rouge TTI>=2, valeur exacte
+en infobulle. Le plafonnement est visuel uniquement, aucun écrêtage des faits.
+Fond CARTO public ; Internet et WebGL requis pour le fond cartographique.
+Les autres graphiques et métriques sont calculés depuis les faits locaux.
+
+## D029 — compte dashboard limité à SELECT (phase 9)
+
+Secret aléatoire dans .env ; rôle traffic_dashboard sans écriture, limité aux
+dim_commune, dim_point, dim_trajectory et fact_travel_time. Pas d'accès quarantine,
+STAGING ni bases Airflow/Metabase. Connexions configurées en lecture seule.
+sql/ddl/00_platform.sql crée le rôle sur volume neuf ; bootstrap_warehouse donne
+les droits si le rôle existe, sans modifier les tests PostGIS isolés.
+init_dashboard.py migre le volume existant et réutilise le secret à la relance.
+Les erreurs de connexion dans l'UI sont génériques pour ne pas exposer de secret.
+L'image tourne sous un utilisateur non root ; port lié à 127.0.0.1 seulement.

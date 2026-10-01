@@ -1,0 +1,14 @@
+{
+  "url": "http://127.0.0.1:8501",
+  "measures": 73920,
+  "points": 110,
+  "heatmap_cells": 528,
+  "communes": 22,
+  "weekday_measures": 52800,
+  "weekend_measures": 21120,
+  "tti_mean": 1.3238901006988721,
+  "tti_p95": 1.8153766027826665,
+  "sql_oracle_matches": true,
+  "write_permission_denied": true,
+  "filter_sample_measures": 60
+}

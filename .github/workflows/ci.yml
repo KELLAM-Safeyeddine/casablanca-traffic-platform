@@ -46,3 +46,13 @@ jobs:
             -s /opt/airflow/tests -p test_dag_integrity.py -v
       - name: Runtime dependencies
         run: docker run --rm --entrypoint python casatraffic-ci:latest -m pip check
+
+  dashboard-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build dashboard image
+        run: docker build --file Dockerfile.dashboard --tag casatraffic-dashboard-ci:latest .
+      - name: Runtime dependencies
+        run: docker run --rm --entrypoint python casatraffic-dashboard-ci:latest -m pip check

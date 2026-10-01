@@ -342,10 +342,10 @@ Garder `CasaTraffic/Scripts` en tête du PATH de la session qui exécute `git co
 Sous Linux, utiliser `CasaTraffic/bin/python` et
 `export PATH="$PWD/CasaTraffic/bin:$PATH"`.
 
-Le pytest ordinaire passe les 51 tests indépendants des services. Il ignore
+Le pytest ordinaire passe les 55 tests indépendants des services. Il ignore
 explicitement deux tests PostGIS et trois tests Airflow. Le script d'intégration
 crée un conteneur PostGIS jetable, un port local aléatoire et un secret aléatoire ;
-il lance les 53 tests applicatifs puis supprime ce conteneur, même après échec.
+il lance les 57 tests applicatifs puis supprime ce conteneur, même après échec.
 Il n'utilise ni le warehouse existant ni ses fichiers RAW. Une tranche de
 440 mesures vérifie idempotence, rejet explicite et rollback STAGING/CORE.
 
@@ -358,12 +358,61 @@ docker run --rm --entrypoint python -v "${PWD}/tests:/opt/airflow/tests:ro" casa
 docker run --rm --entrypoint python casatraffic-ci:latest -m pip check
 ```
 
-`.github/workflows/ci.yml` lance deux jobs Ubuntu à chaque push/PR et sur demande :
+`.github/workflows/ci.yml` lance trois jobs Ubuntu à chaque push/PR et sur demande :
 lint + tests unitaires/PostGIS + pre-commit dans CasaTraffic ; build Docker + tests
-des DAGs + pip check dans l'image Airflow. Aucun secret du poste requis en CI,
+des DAGs + pip check dans l'image Airflow ; build et pip check du dashboard.
+Aucun secret du poste requis en CI,
 aucune publication d'image ni déploiement. Le dépôt local n'a actuellement pas
 de remote GitHub ; le workflow est configuré et ses commandes ont été exécutées
 localement, mais aucun run hébergé GitHub Actions n'est encore disponible.
+
+## Dashboard (phase 9)
+
+Ouvrir **http://localhost:8501**. Streamlit tourne dans Docker et lit PostgreSQL
+avec le compte `traffic_dashboard` limité à SELECT sur les quatre tables CORE
+nécessaires. Metabase reste disponible sur le port 3000 ; il n'est pas initialisé.
+Le plan autorise les deux outils. Streamlit permet les couleurs des points par
+TTI et une heatmap native, sans adapter des régions géographiques à des points.
+
+```powershell
+# Sur un volume existant, après bootstrap_dimensions :
+.\CasaTraffic\Scripts\python.exe -m pip install -r requirements.txt
+.\CasaTraffic\Scripts\python.exe scripts/init_dashboard.py
+docker compose up -d --build dashboard
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase9.py
+```
+
+Depuis un volume neuf, `scripts/init_env.py` génère le secret du dashboard et
+l'init PostgreSQL crée son rôle. Le bootstrap attribue ensuite les droits SELECT.
+Lancer une ingestion `{"mode":"full"}` avant d'interpréter les graphiques.
+Le script `init_dashboard.py` reste relançable pour migrer un volume existant.
+Les secrets restent dans `.env` ; le port 8501 est lié uniquement à localhost.
+
+Quatre vues, au même grain métier :
+
+- Carte des **110 points d'origine**, coordonnées extraites des géométries PostGIS,
+  couleur du TTI moyen, infobulle point/commune/TTI et zoom.
+- Heatmap **commune × heure**, moyenne des observations sur les jours sélectionnés.
+- Comparaison lundi–vendredi / samedi–dimanche : moyennes et p95, effectifs au survol.
+- Classement des **22 communes** par TTI moyen, p95 et vitesse ; téléchargement CSV.
+
+Les filtres communes/jours/heures s'appliquent aux KPI, à la carte, à la heatmap
+et au classement. La comparaison conserve toujours les deux périodes, pour les
+mêmes communes/heures ; cette règle est affichée sous son graphique.
+Le p95 provient directement des faits, jamais de moyennes de p95.
+Une sélection vide produit un message ; un CORE incomplet affiche un avertissement.
+Les données sont mises en cache 60 secondes, avec un bouton d'actualisation.
+
+La palette des points va du bleu (TTI 1) au rouge (TTI ≥2), avec valeur exacte au
+survol. Le plafonnement de la couleur n'altère pas les KPI. Le fond CARTO requiert
+Internet ; les points/coordonnées et autres graphiques restent issus de PostgreSQL.
+La carte requiert un navigateur WebGL. Le fond externe ne reçoit aucun secret SQL.
+
+![Carte et KPI du dashboard](docs/screenshots/dashboard_map.jpg)
+
+[Heatmap](docs/screenshots/dashboard_heatmap.jpg) ·
+[Comparaison et classement](docs/screenshots/dashboard_comparison.jpg) ·
+[Vérifications détaillées](docs/phase9_verification.md)
 
 ## Limites connues et suite
 
@@ -372,8 +421,8 @@ séparateur décimal, cinq indices décalés et 254 trajets dont la distance var
 La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-Le dashboard sera implémenté à la phase 9.
-Les 51 tests présents couvrent lecture, publication RAW, rejeu, contrats
+La documentation finale et les captures complètes restent la phase 10.
+Les 55 tests locaux autonomes couvrent lecture, publication RAW, rejeu, contrats
 pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
 Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,
 sans dépendre des fichiers RAW locaux ignorés par Git.
