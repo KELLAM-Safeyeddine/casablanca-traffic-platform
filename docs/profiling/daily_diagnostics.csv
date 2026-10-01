@@ -1,0 +1,8 @@
+day_of_week,day,measurements,scaled_times,scaled_distances,source_formula_matches,provided_tti_below_one,provided_tti_above_five,gap_above_0_1
+1,monday,10560,0,9552,6696,5,25,10115
+2,tuesday,10560,6921,9480,7161,6,36,10122
+3,wednesday,10560,7027,9552,7085,1,30,10123
+4,thursday,10560,7061,9336,7322,7,38,10115
+5,friday,10560,7081,9504,7009,6,10,10120
+6,saturday,10560,7008,9432,6929,5,30,10112
+7,sunday,10560,7076,9480,7619,4,2,10103

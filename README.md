@@ -9,7 +9,9 @@ Le plan de référence complet est dans [docs/project_plan.md](docs/project_plan
 Phase 0 validée : cadrage, structure, source et environnement de développement.
 Phase 1 validée : infrastructure Docker démarrée et contrôlée.
 Preuves : `docs/phase0_verification.md` et `docs/phase1_verification.md`.
-Les phases 2 à 10 restent à réaliser.
+Phase 2 validée : les 13 feuilles sont profilées, le notebook est exécuté et les règles
+de nettoyage sont documentées dans `docs/data_quality_report.md`.
+Les phases 3 à 10 restent à réaliser.
 Aucune mesure métier n'est encore chargée ; les cardinalités du plan sont des objectifs.
 
 ## Architecture cible
@@ -97,11 +99,26 @@ La semaine est une semaine type, sans date d'observation.
 Le dictionnaire provisoire est dans `docs/data_dictionary.md` ; les KPI dans
 `docs/business_scope.md` ; les décisions dans `docs/decisions.md`.
 
+## Reproduire le profilage (phase 2)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/profile_workbook.py
+.\CasaTraffic\Scripts\python.exe -m ipykernel install --prefix .\CasaTraffic --name casatraffic --display-name "CasaTraffic (Python 3.11)"
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase2.py
+.\CasaTraffic\Scripts\python.exe -m jupyter lab notebooks/02_source_profiling.ipynb
+```
+
+Sélectionner `CasaTraffic (Python 3.11)` dans Jupyter. Le vérificateur exécute les
+sept cellules de code avec ce kernel, vérifie la source et conserve les sorties.
+Les 73 920 diagnostics Parquet sont dans `docs/profiling/` : ce sont des résultats
+exploratoires avec valeurs brutes et candidates, pas la couche RAW de production.
+
 ## Limites connues et suite
 
-Les anomalies citées dans le plan (en-têtes fusionnés, unités mixtes, TTI suspects,
-fautes de noms) doivent être mesurées en phase 2 avant d'appliquer les règles.
+Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
+séparateur décimal, cinq indices décalés et 254 trajets dont la distance varie.
+La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
 Les DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases respectives.
-Les quatre tests présents contrôlent le parseur de vérification d'import Airflow.
+Les 11 tests présents contrôlent le parseur Airflow et les risques de lecture de la source.

@@ -57,3 +57,45 @@ plutôt que fichier H2. Le dashboard et son assistant de configuration sont la p
 Les digests réellement téléchargés seront consignés dans la vérification de phase 1.
 Références : https://github.com/metabase/metabase/releases/tag/v0.59.31
 et https://www.metabase.com/docs/latest/installation-and-operation/running-metabase-on-docker
+
+## D009 — lecture structurée et noms (phase 2)
+
+13 feuilles = sommaire + tables 0–11. Détecter la ligne Commune et contrôler les
+blocs d'heures. Propager les communes/ZIP seulement dans les plages fusionnées.
+Conserver feuille et numéro de ligne Excel ; identifier les jours par numéro de table.
+Les couples commune/ZIP sont cohérents entre tables, donc pas de correction floue
+des noms. Garder les libellés bruts et normaliser les clés Unicode/espaces/casse.
+
+## D010 — temps, distances et audit (phase 2)
+
+Distance >100 : diviser par 1000 conformément au plan. Pour cette source vérifiée
+par SHA-256, temps entier >=1000 : diviser par 1000, car les 42 174 valeurs concernées
+présentent un séparateur décimal perdu. Ne pas déduire un temps du TTI fourni.
+Conserver valeurs brutes et motif ; toute valeur non interprétable reste visible.
+Les outliers statistiques ne sont pas supprimés. Ces règles seront implémentées
+et validées avant chargement, et ne sont pas universelles pour de nouvelles sources.
+
+## D011 — référence TTI (phase 2)
+
+Minimum du temps valide corrigé de chaque trajet dirigé sur les 168 heures.
+La référence est indépendante du TTI fourni, puis figée pour le rejeu.
+Conserver TTI source, recalculé et écart. Écart absolu >0,1 : signal de qualité.
+TTI source >5 : signal, pas rejet automatique. TTI source <1 : anomalie à tracer,
+sans supprimer la mesure si le temps valide permet un recalcul conforme.
+Le minimum est un proxy empirique ; le rapport documente le changement de référence
+et la fuite d'information à éviter pour une extension ML.
+
+## D012 — clés de points et distances variables (phase 2)
+
+Résoudre l'index trajet 110–114 vers les points 105–109 par correspondance unique
+des coordonnées arrondies à huit décimales. Ne pas appliquer un décalage global.
+254 trajets changent de distance selon le jour : distance du lundi dans dim_trajectory,
+distance observée et valeur brute conservées dans les faits pour calculer la vitesse.
+
+## D013 — attributs urbains et kernel (phase 2)
+
+Population et ménages fractionnaires : conserver leur précision. Surfaces en m².
+Density sans unité vérifiée : conserver comme density_source et exposer séparément
+population/superficie en km². Aucune longueur de route n'est fournie.
+Le kernel Jupyter casatraffic est installé seulement sous CasaTraffic/share/jupyter
+et sa commande Python est contrôlée avant d'exécuter le notebook.
