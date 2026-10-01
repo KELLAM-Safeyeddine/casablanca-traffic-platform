@@ -41,9 +41,9 @@ def api(path: str, method: str = "GET", payload: dict | None = None) -> dict:
         return json.load(response)
 
 
-def run_dag(conf: dict) -> dict:
+def run_dag(conf: dict, phase: str = "phase3") -> dict:
     """Déclencher un run et attendre ses tâches effectivement exécutées."""
-    run_id = "phase3_" + uuid.uuid4().hex
+    run_id = phase + "_" + uuid.uuid4().hex
     prefix = "dags/ingest_traffic/dagRuns"
     api(prefix, "POST", {"dag_run_id": run_id, "conf": conf})
     deadline = time.monotonic() + 480

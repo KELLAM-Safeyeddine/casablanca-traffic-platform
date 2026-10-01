@@ -178,3 +178,41 @@ Les rejets et corrections seront tracés en phases 4–5. Les références empir
 utilisent toute la semaine : pour un futur modèle prédictif, les recalculer sur
 l'ensemble d'entraînement pour éviter une fuite de données. Le jeu ne fournit ni
 date, ni historique, ni volume de véhicules, ni certitude sur l'échantillonnage.
+
+## Validation exécutée en phase 4
+
+Les douze tables métier passent désormais dans pandera et les contrôles référentiels.
+Les 198 lignes des tables 0–4 sont valides. Les 17 lignes de Summary sont conservées
+comme navigation. Sur les 73 920 mesures horaires, les classes sont :
+
+| Classe | Mesures |
+|---|---:|
+| Sans réparation obligatoire au titre des contrats RAW | 70 557 |
+| Réparables, correction obligatoire avant CORE | 3 363 |
+| Rejets bloquants | 0 |
+| Total réconcilié | 73 920 |
+
+La validation des deux extrémités révèle **140 lignes d'origine et 140 lignes de
+destination** avec un indice décalé, soit 280 événements. Ces lignes touchent les mêmes
+20 trajets/jour de Moulay Youssef : **3 360 mesures distinctes**. Le profil de phase 2
+avait chiffré les origines ; la phase 4 trace également les destinations.
+31 des 34 TTI <1 concernent déjà ces mesures ; seuls trois ajoutent de nouvelles
+mesures à réparer, d'où 3 363 et non 3 394.
+
+La table PostgreSQL quarantine contient **485 événements** : 280 indices réparables,
+34 TTI <1 réparables, 171 TTI >5 en avertissement. Les payloads bruts, raisons,
+feuilles, lignes et heures sont conservés. Deux validations locales, deux runs full
+Airflow et un rejeu n'augmentent pas ce compte. Aucun RAW ou classeur n'est modifié.
+Les événements TTI full et replay partagent le même identifiant source horaire.
+
+Les temps et distances restent bruts : le statut qualité ci-dessus ne signifie pas
+qu'ils sont déjà normalisés. Les règles de conversion et le TTI recalculé de phase 2
+seront appliqués puis validés avant le chargement de phase 5. Un TTI réparé ne sera
+jamais chargé tel quel depuis la colonne source.
+
+Les tests injectent hors production des temps 0/négatifs/NaN/infinis/non numériques,
+booléens, distances nulles, coordonnées hors enveloppe, indices inconnus, communes
+inconnues, doublons, colonnes absentes et comptes fractionnaires. Chaque rejet est
+localisé et compté ; les cas manquants ne sont pas masqués par une suppression.
+Le gate de rejet >1 % est testé, y compris la persistance du journal avant l'exception.
+Rapport d'exécution : `docs/phase4_runs.json` ; détails : `docs/phase4_verification.md`.

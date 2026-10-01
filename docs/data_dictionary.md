@@ -43,5 +43,14 @@ Les mesures sont une semaine type ; aucune date réelle ne sera inventée.
 
 Le rapport `docs/data_quality_report.md` contient les preuves et limites de ces règles.
 
+## Journal qualité implémenté en phase 4
+
+`traffic.public.quarantine`, clé primaire `event_id` SHA-256 stable :
+`source_sha256`, `source_file`, `sheet`, `excel_row`, `hour` (-1 = ligne entière),
+`column_name`, `reason`, `severity` (rejected/repairable/warning), `raw_payload` JSONB,
+`first_seen_at`, `last_seen_at` UTC et `last_run_id`.
+Le payload garde les valeurs RAW et leur provenance. Les métriques réparables restent
+à corriger en phase 5 ; aucune mesure n'est encore chargée dans l'entrepôt.
+
 Marts prévus : `mart_commune_hourly_congestion`, `mart_peak_hours`,
 `mart_weekday_vs_weekend`, `mart_commune_features`.

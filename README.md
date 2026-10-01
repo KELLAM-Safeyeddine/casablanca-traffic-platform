@@ -14,7 +14,9 @@ de nettoyage sont documentées dans `docs/data_quality_report.md`.
 Phase 3 validée : 13 Parquet RAW immuables, 168 partitions de rejeu horaire et
 le DAG `ingest_traffic` exécuté avec dynamic task mapping. Preuves dans
 `docs/phase3_verification.md` et `docs/phase3_runs.json`.
-Les phases 4 à 10 restent à réaliser.
+Phase 4 validée : contrats pandera, journal PostgreSQL `quarantine` et gate qualité
+intégrés à l'ingestion. Preuves : `docs/phase4_verification.md` et `docs/phase4_runs.json`.
+Les phases 5 à 10 restent à réaliser.
 Aucune mesure métier n'est encore chargée ; les cardinalités du plan sont des objectifs.
 
 ## Architecture cible
@@ -148,8 +150,45 @@ d'observation. Aucun appel réseau à Waze n'est effectué.
 
 La concurrence est limitée à quatre tâches ; les sept jours passent en deux vagues.
 Le vérificateur déclenche quatre runs réels et consigne leurs états et horodatages.
-Les trois autres DAGs seront ajoutés à la phase 7. Validation pandera, quarantine
-et chargement des faits restent les phases 4–5.
+Les trois autres DAGs seront ajoutés à la phase 7. Le chargement des faits reste la phase 5.
+
+## Validation et quarantine (phase 4)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase4.py
+.\CasaTraffic\Scripts\python.exe -m pytest -q
+.\CasaTraffic\Scripts\python.exe -m ruff check .
+```
+
+Chaque run `ingest_traffic` valide les références, puis chaque jour/tranche par mapping.
+Les schémas contrôlent types, nombres finis, bornes géographiques, temps >0,
+TTI source ≥1, comptes entiers, cardinalités et unicité. Les contrôles référentiels
+vérifient commune/ZIP et la concordance index/coordonnées avec Table 0.
+Les nombres sont convertis dans une vue temporaire de validation ; le RAW reste intact.
+
+Les anomalies sont insérées dans `traffic.public.quarantine` via la Connection
+Airflow `casatraffic`, avec payload brut JSON, feuille, ligne Excel, heure et motif.
+`hour=-1` signifie une anomalie de ligne entière. Un identifiant déterministe et
+un upsert évitent les doublons ; la première observation est conservée.
+Les rapports par run sont sous `data/quarantine/reports/`, avec noms compatibles Windows.
+
+Trois sévérités : `rejected` bloque la mesure, `repairable` impose une correction
+en phase 5, `warning` signale un TTI >5. Les indices connus 110–114 ne sont réparables
+que si la source et les coordonnées confirment le crosswalk ; aucun décalage général
+n'est appliqué. Un TTI source positif <1 est conservé pour recalcul à partir du temps.
+Il ne sera pas chargé tel quel dans le fait. Les compteurs réconcilient toutes les mesures.
+
+La Variable `traffic_max_error_rate` vaut **0.01** par défaut. Après persistance
+des événements et du rapport, un taux de rejet **strictement supérieur à 1 %**
+fait échouer la tâche. Les cas réparables et avertissements sont audités séparément.
+Le seuil s'applique à chaque partition ; au-delà du seuil, le run ne poursuit pas
+vers la réconciliation finale. Ne pas désactiver la journalisation pour contourner un rejet.
+
+Sur la source : **70 557 mesures sans réparation bloquante, 3 363 réparables,
+0 rejet bloquant**, total 73 920. La table quarantine contient **485 événements**
+(314 réparables et 171 avertissements) après plusieurs runs identiques.
+Une mesure peut avoir plusieurs motifs ; un événement sur une ligne quotidienne
+peut concerner ses 24 heures. Les 198 lignes des tables 0–4 satisfont leurs contrats.
 
 ## Limites connues et suite
 
@@ -159,5 +198,7 @@ La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente 
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
 Les autres DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases
-respectives. Les 22 tests présents couvrent la lecture, le parseur Airflow, la publication
-RAW concurrente et immuable, la détection de corruption et les frontières du rejeu.
+respectives. Les 37 tests présents couvrent lecture, publication RAW, rejeu, contrats
+pandera, rejets et cas réparables, références, doublons, seuil et persistance avant échec.
+Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,
+sans dépendre des fichiers RAW locaux ignorés par Git.

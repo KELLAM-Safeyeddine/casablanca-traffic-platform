@@ -124,3 +124,40 @@ seulement de compteur de simulation. Tick 0 = lundi 00 h, tick 167 = dimanche 23
 tick 168 = retour au lundi 00 h. Les chemins restent stables ; aucune multiplication
 des mesures par des semaines/dates fictives. Les 168 tranches permettent de tester
 toute la semaine sans attendre sept jours. La référence TTI restera figée en phase 5.
+
+## D016 — contrats RAW et classes de qualité (phase 4)
+
+Pandera valide une copie typée du RAW, en mode lazy pour collecter tous les échecs :
+https://pandera.readthedocs.io/en/stable/lazy_validation.html
+Un échec numérique reste NaN dans la vue et produit un rejet explicite ; jamais de dropna.
+Des contraintes de finitude complètent les bornes. Les identifiants et comptes exigent
+une valeur entière sans arrondi ; population/ménages conservent leurs fractions.
+Enveloppe plausible Casablanca : latitude [33.3, 33.8], longitude [-7.9, -7.2],
+sans prétendre vérifier les limites administratives exactes. Cardinalités fixées à cette
+source : 110 points, 22 communes par table d'attributs, 440 trajets par jour/tranche.
+Summary est une feuille de navigation conservée et non une table métier à valider.
+
+`rejected` : valeur impossible, manquante, non finie, doublon ou référence inconnue.
+`repairable` : TTI source positif <1 ou indice du crosswalk D012, uniquement si la
+source connue et la correspondance géographique sont confirmées pour ce dernier.
+`warning` : TTI source >5. Tout est journalisé dans quarantine, sans modifier le RAW.
+Une mesure réparée ne sera admissible au CORE qu'après la validation normalisée de phase 5.
+Ces sévérités évitent d'éliminer les temps valides à cause du seul TTI fourni.
+
+## D017 — journal PostgreSQL et seuil (phase 4)
+
+Créer dès la phase 4 `public.quarantine` dans la base traffic ; STAGING/CORE attendent
+la phase 5. Conserver payload JSON brut, raison, colonne, feuille, ligne et heure.
+Une anomalie de ligne entière utilise hour=-1. L'identifiant SHA-256 inclut source,
+feuille, ligne, heure, règle, colonne et sévérité ; les colonnes de rejeu sont rattachées
+aux noms de colonnes horaires source pour ne pas doubler un même événement full/replay.
+Upsert actualise last_seen_at/last_run_id, sans changer first_seen_at ni la charge initiale.
+Pas de purge automatique. Une ligne peut produire plusieurs événements ; les compteurs
+de mesures utilisent l'union des clés ligne/heure, avec priorité au rejet bloquant.
+
+Seuil standard choisi : rejet >1 % par partition fait échouer la tâche après persistance.
+Configurable via `traffic_max_error_rate`, bornée entre 0 et 1. Réparables et warnings
+sont exposés séparément. Le DDL idempotent est appliqué à l'exécution, ce qui fonctionne
+aussi sur le volume PostgreSQL déjà créé. Les tâches utilisent la Connection casatraffic.
+Les rapports par run gardent le run_id original dans le JSON ; leur dossier remplace les
+caractères incompatibles Windows et ajoute un hash pour éviter les collisions de noms.
