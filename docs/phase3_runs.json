@@ -1,0 +1,269 @@
+{
+  "source_sha256": "4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d",
+  "raw_files": {
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\summary.parquet": "a9d20c8f6ae4179968126a8a191b9e770e6bf931564045ce6feae726be94f631",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_00.parquet": "45f7175551e34d315a72244fc6eaf6ffee383dbd8f2e09d686e311fe44d512e2",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_01.parquet": "8b5fe5005e194006fabb98fab6af699ff9083ca2866e98baa3d34012e24c906a",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_02.parquet": "e9dfd3e4ae83db838c0cd0c592234e8441adad9de7dc42e422cbadd3e55239a9",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_03.parquet": "f9c9b1bbffac1f0c41f206fd93226bb7651ded20cf7f0a5c5356fe7516507566",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_04.parquet": "3216144316089033d3d9a2d9650ee67ddcda42a9fd2d44a8a89c4bbb5bd292f1",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_05.parquet": "0ca28672957af3467ba77bb140409bebefa5a8f5690b026b9392368b57d56f0a",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_06.parquet": "82be0347bdc90e7d743082be8477b5fae3fcf79c89b864abe62b35634536b16e",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_07.parquet": "60d1f4ae0fccfdde295aa9df89f64ca83efa4c573687dd796fbd46cd260642aa",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_08.parquet": "0472f603580649b3e4a4849dbe92a0c838500ea6231e8080c62cdee4c43efb4f",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_09.parquet": "06b0a610c9e88e464588582148850adbbae775063ab401fd359e41446cbac8d0",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_10.parquet": "bac930f170dd2b76917a17042e4a619d48690048742e8c015de99573169b88dd",
+    "data\\raw\\source_sha256=4778abffbe3d7791afa58069fc8a98b6e89995174d4c64401d9367221c42d17d\\table_11.parquet": "1fb376db99a707cdde54a32710a8d463a46a830b1680f3ccda630ec52ca2a82c"
+  },
+  "replay_partitions": 168,
+  "replay_rows": 73920,
+  "immutable_raw": true,
+  "runs": [
+    {
+      "run_id": "phase3_8f209e82d3e64a799ed8d2dcfadb2554",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T21:53:07.192300+00:00",
+      "end_date": "2026-10-01T21:53:20.745086+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:12.741197+00:00",
+          "end_date": "2026-10-01T21:53:14.713378+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:12.741226+00:00",
+          "end_date": "2026-10-01T21:53:14.694398+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:12.741181+00:00",
+          "end_date": "2026-10-01T21:53:14.646359+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:12.789632+00:00",
+          "end_date": "2026-10-01T21:53:14.925487+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:17.215568+00:00",
+          "end_date": "2026-10-01T21:53:18.316424+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:17.215550+00:00",
+          "end_date": "2026-10-01T21:53:18.279965+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:17.215803+00:00",
+          "end_date": "2026-10-01T21:53:18.279897+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:11.880668+00:00",
+          "end_date": "2026-10-01T21:53:12.212797+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:07.594988+00:00",
+          "end_date": "2026-10-01T21:53:10.659975+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:18.856647+00:00",
+          "end_date": "2026-10-01T21:53:19.979452+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase3_b2d8b633889748d0ac97099ec1141a69",
+      "conf": {
+        "mode": "full"
+      },
+      "state": "success",
+      "start_date": "2026-10-01T21:53:23.880187+00:00",
+      "end_date": "2026-10-01T21:53:36.108264+00:00",
+      "mapped_tasks": 7,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:29.064961+00:00",
+          "end_date": "2026-10-01T21:53:30.445540+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:29.064971+00:00",
+          "end_date": "2026-10-01T21:53:30.383945+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 2,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:29.064953+00:00",
+          "end_date": "2026-10-01T21:53:30.383784+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 3,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:29.128481+00:00",
+          "end_date": "2026-10-01T21:53:30.467255+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 4,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:32.322771+00:00",
+          "end_date": "2026-10-01T21:53:33.378219+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 5,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:32.322747+00:00",
+          "end_date": "2026-10-01T21:53:33.390920+00:00"
+        },
+        {
+          "task_id": "extract_partition",
+          "map_index": 6,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:32.321610+00:00",
+          "end_date": "2026-10-01T21:53:33.381168+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:28.064664+00:00",
+          "end_date": "2026-10-01T21:53:28.406195+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:24.199458+00:00",
+          "end_date": "2026-10-01T21:53:27.164099+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:34.301370+00:00",
+          "end_date": "2026-10-01T21:53:35.679240+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase3_7e336b8b84ae4e13b721b0300b0e78ea",
+      "conf": {
+        "mode": "replay",
+        "tick": 0
+      },
+      "state": "success",
+      "start_date": "2026-10-01T21:53:37.139038+00:00",
+      "end_date": "2026-10-01T21:53:47.215946+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:43.409239+00:00",
+          "end_date": "2026-10-01T21:53:44.374550+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:42.337408+00:00",
+          "end_date": "2026-10-01T21:53:42.678289+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:37.517641+00:00",
+          "end_date": "2026-10-01T21:53:40.913857+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:45.539856+00:00",
+          "end_date": "2026-10-01T21:53:46.521732+00:00"
+        }
+      ]
+    },
+    {
+      "run_id": "phase3_04072502134f45d3991f0b45da05175c",
+      "conf": {
+        "mode": "replay",
+        "tick": 168
+      },
+      "state": "success",
+      "start_date": "2026-10-01T21:53:49.927904+00:00",
+      "end_date": "2026-10-01T21:53:58.986324+00:00",
+      "mapped_tasks": 1,
+      "tasks": [
+        {
+          "task_id": "extract_partition",
+          "map_index": 0,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:55.568937+00:00",
+          "end_date": "2026-10-01T21:53:56.712027+00:00"
+        },
+        {
+          "task_id": "plan_jobs",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:54.456891+00:00",
+          "end_date": "2026-10-01T21:53:54.816651+00:00"
+        },
+        {
+          "task_id": "prepare_source",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:50.166770+00:00",
+          "end_date": "2026-10-01T21:53:53.521471+00:00"
+        },
+        {
+          "task_id": "reconcile_raw",
+          "map_index": -1,
+          "state": "success",
+          "start_date": "2026-10-01T21:53:57.636818+00:00",
+          "end_date": "2026-10-01T21:53:58.608146+00:00"
+        }
+      ]
+    }
+  ]
+}

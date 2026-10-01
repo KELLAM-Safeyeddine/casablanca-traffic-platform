@@ -11,7 +11,10 @@ Phase 1 validée : infrastructure Docker démarrée et contrôlée.
 Preuves : `docs/phase0_verification.md` et `docs/phase1_verification.md`.
 Phase 2 validée : les 13 feuilles sont profilées, le notebook est exécuté et les règles
 de nettoyage sont documentées dans `docs/data_quality_report.md`.
-Les phases 3 à 10 restent à réaliser.
+Phase 3 validée : 13 Parquet RAW immuables, 168 partitions de rejeu horaire et
+le DAG `ingest_traffic` exécuté avec dynamic task mapping. Preuves dans
+`docs/phase3_verification.md` et `docs/phase3_runs.json`.
+Les phases 4 à 10 restent à réaliser.
 Aucune mesure métier n'est encore chargée ; les cardinalités du plan sont des objectifs.
 
 ## Architecture cible
@@ -113,6 +116,41 @@ sept cellules de code avec ce kernel, vérifie la source et conserve les sorties
 Les 73 920 diagnostics Parquet sont dans `docs/profiling/` : ce sont des résultats
 exploratoires avec valeurs brutes et candidates, pas la couche RAW de production.
 
+## Ingestion RAW et simulateur (phase 3)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/extract_raw.py
+# Une heure : tick 0 = lundi 00 h, tick 24 = mardi 00 h
+.\CasaTraffic\Scripts\python.exe -m src.extract.flow_simulator --source "data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx" --raw-root data/raw --tick 0
+# Semaine type complète, 168 tranches
+.\CasaTraffic\Scripts\python.exe -m src.extract.flow_simulator --source "data/source/Dataset_for_traffic_analysis_in_Casablanca__Morocco.xlsx" --raw-root data/raw --tick 0 --steps 168
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase3.py
+.\CasaTraffic\Scripts\python.exe -m pytest -q
+.\CasaTraffic\Scripts\python.exe -m ruff check .
+```
+
+Les fichiers sont sous `data/raw/source_sha256=<empreinte>/` : Summary et tables
+0–11 ; le rejeu sous `replay/day=1..7/hour=00..23.parquet`. Chaque fichier conserve
+`_ingested_at` UTC, `_source_file`, `_sheet`, `_source_sha256`, `_payload_sha256`
+et le numéro de ligne Excel. Les labels commune/ZIP bruts restent également présents.
+Les temps, distances, indices et TTI ne sont pas corrigés dans RAW.
+Les partitions existantes sont vérifiées puis réutilisées sans changer leurs octets.
+
+Dans [Airflow](http://localhost:8080), activer `ingest_traffic` puis déclencher
+avec la configuration `{"mode":"full"}` pour les sept jours mappés, ou
+`{"mode":"replay","tick":0}` pour une tranche. La planification `@hourly`
+utilise le mode replay par défaut ; le vérificateur active le DAG et laisse ce
+rejeu horaire actif. Sans tick explicite, le tick est dérivé de l'intervalle logique
+Airflow et d'une ancre de simulation UTC. Les Variables facultatives sont
+`traffic_source_file`, `traffic_raw_root`, `traffic_replay_anchor`
+(défaut `2026-01-05T00:00:00Z`). Le tick boucle modulo 168 ; il ne crée pas de date
+d'observation. Aucun appel réseau à Waze n'est effectué.
+
+La concurrence est limitée à quatre tâches ; les sept jours passent en deux vagues.
+Le vérificateur déclenche quatre runs réels et consigne leurs états et horodatages.
+Les trois autres DAGs seront ajoutés à la phase 7. Validation pandera, quarantine
+et chargement des faits restent les phases 4–5.
+
 ## Limites connues et suite
 
 Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
@@ -120,5 +158,6 @@ séparateur décimal, cinq indices décalés et 254 trajets dont la distance var
 La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-Les DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases respectives.
-Les 11 tests présents contrôlent le parseur Airflow et les risques de lecture de la source.
+Les autres DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases
+respectives. Les 22 tests présents couvrent la lecture, le parseur Airflow, la publication
+RAW concurrente et immuable, la détection de corruption et les frontières du rejeu.

@@ -99,3 +99,28 @@ Density sans unité vérifiée : conserver comme density_source et exposer sépa
 population/superficie en km². Aucune longueur de route n'est fournie.
 Le kernel Jupyter casatraffic est installé seulement sous CasaTraffic/share/jupyter
 et sa commande Python est contrôlée avant d'exécuter le notebook.
+
+## D014 — RAW immuable et concurrence (phase 3)
+
+Un répertoire par SHA-256 de source ; un Parquet pour chacune des 13 feuilles.
+Summary conserve ses 17 lignes physiques, les tables conservent toutes les lignes
+de données et leurs numéros Excel. Le forward-fill est limité aux plages fusionnées,
+avec les labels commune/ZIP originaux conservés séparément. Pas de nettoyage numérique
+dans RAW. Publication par fichier temporaire complet puis lien dur atomique : une cible
+existante n'est jamais écrasée, y compris avec deux producteurs concurrents.
+Un hash du contenu et la provenance sont vérifiés à chaque lecture/réutilisation.
+Le lien dur a été vérifié sous Windows et depuis Docker sur le volume monté.
+Une source identique et une partition existante valide évitent une nouvelle lecture Excel.
+Le dossier RAW est une couche gérée par l'application, pas un stockage WORM matériel.
+
+## D015 — mapping et horloge du simulateur (phase 3)
+
+Un seul DAG `ingest_traffic`, TaskFlow, mapping généré à l'exécution : sept jobs
+en mode full ; un job en mode replay. `max_active_tasks=4` limite la mémoire
+et exécute les jours en deux vagues. Référence :
+https://airflow.apache.org/docs/apache-airflow/2.11.2/authoring-and-scheduling/dynamic-task-mapping.html
+La planification horaire utilise une ancre UTC configurable via Variable ; elle sert
+seulement de compteur de simulation. Tick 0 = lundi 00 h, tick 167 = dimanche 23 h,
+tick 168 = retour au lundi 00 h. Les chemins restent stables ; aucune multiplication
+des mesures par des semaines/dates fictives. Les 168 tranches permettent de tester
+toute la semaine sans attendre sept jours. La référence TTI restera figée en phase 5.
