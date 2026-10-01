@@ -247,3 +247,16 @@ Les snapshots de contenu sont identiques après un second full et les rejeux 0/1
 Une panne SQL injectée après les remplacements STAGING/CORE annule toute la transaction ;
 les empreintes restent identiques. L'Excel et les treize Parquet RAW sont inchangés.
 Preuves machine : `docs/phase5_runs.json` ; vérification : `docs/phase5_verification.md`.
+
+## Réconciliation analytique en phase 6
+
+Les quatre marts couvrent les 73 920 faits sans duplication de jointure : 3 696
+groupes commune/jour/heure, 20 observations chacun ; 154 pointes commune/jour ;
+44 groupes semaine/week-end et 22 profils de communes. Chaque commune couvre
+2 400 observations de jours ouvrés et 960 de week-end, soit 3 360 pour sa semaine.
+Les valeurs et chaque clé ont été comparées à un oracle pandas calculé depuis CORE,
+y compris le percentile continu et les attributs urbains. Tolérance flottante : 1e-12.
+La reconstruction répétée et celle exécutée depuis Docker gardent le même contenu.
+Une égalité de deux heures est conservée dans un test SQL temporaire. Une panne
+SQL après reconstruction annule les quatre remplacements, sans altérer CORE.
+Rapport machine : `docs/phase6_verification.json`.

@@ -202,3 +202,37 @@ requiert un modèle versionné et une migration explicite : pas d'écrasement im
 Le vérificateur conserve le premier état vide et les runs successifs dans son rapport,
 compare les empreintes des données métier, et injecte une division par zéro dans une
 copie SQL temporaire pour tester le rollback réel après remplacement de la partition.
+
+## D021 — marts SQL persistants et KPI (phase 6)
+
+Quatre tables public à clés primaires stables, créées et reconstruites par SQL versionné
+dans sql/marts. Ce volume permet une reconstruction complète transactionnelle, avec
+les mêmes tables visibles dans Metabase entre deux builds. Pas de DROP ni de renommage.
+Le constructeur exige les 73 920 faits de la semaine type ; un CORE incomplet bloque
+le build et conserve les marts existants. Verrou advisory pour sérialiser les builds,
+SHARE sur les tables CORE pour éviter de mélanger plusieurs états de leurs données.
+Les quatre remplacements sont atomiques ; pas d'écriture dans les faits ou les RAW.
+
+Commune d'origine, poids égal par observation, TTI recalculé et moyenne des vitesses.
+Le p95 est percentile_cont(0.95), calculé directement sur les observations de chaque
+grain, jamais depuis la moyenne des p95 de groupes plus petits :
+https://www.postgresql.org/docs/16/functions-aggregate.html
+Moyennes avec ordre explicite des clés pour stabiliser les additions flottantes.
+Pointes au grain commune/jour, dense_rank=1, toutes les égalités conservées :
+https://www.postgresql.org/docs/16/functions-window.html
+La comparaison semaine/week-end expose deux lignes par commune, effectif, nombre
+de jours, TTI moyen/p95 et vitesse moyenne. Cinq jours contre deux : les sommes
+ne sont pas des mesures comparables de congestion ; les moyennes le sont.
+Les caractéristiques joignent les KPI hebdomadaires aux attributs de dim_commune,
+sans arrondi ni unité supposée pour density_source. C'est un dataset descriptif à
+22 lignes ; pour ML, isoler la cible et éviter les autres KPI du même jeu comme prédicteurs.
+
+## D022 — vérification indépendante et orchestration (phase 6)
+
+Un oracle pandas calcule chaque KPI depuis les 73 920 faits et compare chaque clé,
+avec tolérance flottante 1e-12. Les caractéristiques urbaines sont comparées à CORE.
+Les empreintes des quatre marts restent stables après build local et depuis Docker.
+Un échantillon SQL temporaire vérifie les pointes ex æquo ; une copie temporaire du
+SQL final avec division par zéro prouve le rollback des quatre tables réelles.
+Le constructeur réutilisable est exécuté localement avec .env et dans Docker avec
+la Connection Airflow. Le DAG et le déclenchement automatique sont la phase 7.

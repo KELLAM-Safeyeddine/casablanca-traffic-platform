@@ -19,7 +19,9 @@ intégrés à l'ingestion. Preuves : `docs/phase4_verification.md` et `docs/phas
 Phase 5 validée : unités et clés normalisées, modèle STAGING/CORE chargé avec
 22 communes, 110 points, 168 créneaux, 440 trajets et 73 920 faits.
 Preuves d'idempotence et de rollback : `docs/phase5_runs.json`, `docs/phase5_verification.md`.
-Les phases 6 à 10 restent à réaliser.
+Phase 6 validée : quatre marts reconstruits en SQL, vérifiés par un oracle pandas
+indépendant, avec idempotence et rollback. Preuves : `docs/phase6_verification.md`.
+Les phases 7 à 10 restent à réaliser.
 
 ## Architecture cible
 
@@ -237,6 +239,49 @@ et replay/replay, puis injecte une panne SQL temporaire pour prouver le rollback
 TTI minimum 1, moyenne 1,323890 et maximum 4,548759. 70 810 écarts absolus >0,1
 avec le TTI fourni sont signalés ; la différence de référence est documentée.
 
+## Data marts (phase 6)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/build_marts.py
+.\CasaTraffic\Scripts\python.exe scripts/verify_phase6.py
+```
+
+Les quatre tables sont dans `traffic.public` et leurs SQL dans `sql/marts/` :
+
+| Mart | Grain | Lignes constatées |
+|---|---|---:|
+| mart_commune_hourly_congestion | commune × jour × heure | 3 696 |
+| mart_peak_hours | commune × jour × heure maximale, égalités conservées | 154 |
+| mart_weekday_vs_weekend | commune × is_weekend | 44 |
+| mart_commune_features | commune, KPI et attributs urbains | 22 |
+
+Les agrégats utilisent le TTI recalculé et la commune d'origine. Chaque observation
+a le même poids. Le p95 est interpolé depuis les faits ; les p95 horaires ne sont
+pas moyennés pour produire un p95 hebdomadaire. Chaque groupe horaire a 20 mesures ;
+chaque commune a 2 400 mesures lundi–vendredi et 960 samedi–dimanche.
+Les effectifs et nombre de jours sont exposés pour comparer les moyennes.
+
+Le constructeur exige la semaine type complète (73 920 faits), verrouille les
+tables CORE en lecture, puis remplace les quatre marts dans une transaction.
+Une erreur conserve leurs versions précédentes. Les requêtes ordonnent les valeurs
+des moyennes pour rendre les résultats flottants stables après reconstruction.
+La commande locale utilise .env ; la même fonction est validée dans Docker avec
+la Connection `casatraffic`. Le DAG `build_marts` et son déclenchement après ingestion
+seront ajoutés à la phase 7. Jusqu'alors, reconstruire manuellement après une ingestion.
+
+Exemple de classement, exécutable dans PostgreSQL :
+
+```sql
+SELECT nom, measurement_count, tti_mean, tti_p95
+FROM public.mart_commune_features
+ORDER BY tti_mean DESC, commune_id;
+```
+
+`mart_commune_features` conserve les variables urbaines avec leur précision et leurs
+unités. Pour une analyse prédictive, distinguer la cible TTI des autres KPI de congestion
+et construire la référence TTI seulement sur l'entraînement. Les 22 communes et cette
+seule semaine type permettent d'abord une analyse descriptive.
+
 ## Limites connues et suite
 
 Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
@@ -244,7 +289,7 @@ séparateur décimal, cinq indices décalés et 254 trajets dont la distance var
 La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-Les autres DAGs, marts, tests métier, CI et dashboard seront implémentés à leurs phases
+Les autres DAGs, les tests/CI complémentaires et le dashboard seront implémentés à leurs phases
 respectives. Les 43 tests présents couvrent lecture, publication RAW, rejeu, contrats
 pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
 Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,

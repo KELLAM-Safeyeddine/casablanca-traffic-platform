@@ -78,3 +78,18 @@ Marts prévus : `mart_commune_hourly_congestion`, `mart_peak_hours`,
 
 Les tables staging.commune, staging.point et staging.trajectory précèdent leurs
 dimensions CORE. Le DDL et les deux transformations SQL sont dans sql/ddl/02–04.
+
+## Marts implémentés en phase 6
+
+| Table public | Clé | Mesures / attributs |
+|---|---|---|
+| mart_commune_hourly_congestion | commune_id, day_of_week, hour | measurement_count, tti_mean, tti_p95, speed_mean_kmh, tti_gap_count |
+| mart_peak_hours | commune_id, day_of_week, hour | tti_mean, tti_p95, measurement_count ; toutes les heures au maximum journalier |
+| mart_weekday_vs_weekend | commune_id, is_weekend | day_count, measurement_count, tti_mean, tti_p95, speed_mean_kmh |
+| mart_commune_features | commune_id | Tous les attributs dim_commune, measurement_count, tti_mean, tti_p95, speed_mean_kmh, tti_gap_count |
+
+Grains et effectifs observés : 3 696 groupes horaires de 20 faits, 154 pointes,
+44 comparaisons (2 400 faits en semaine, 960 en week-end par commune), 22 profils
+de 3 360 faits. Les p95 sont calculés directement au grain de chaque mart.
+L'heure est celle de la semaine type ; aucune date d'observation n'est ajoutée.
+Les valeurs sont remplacées atomiquement après une ingestion, avec CORE complet.

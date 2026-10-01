@@ -1,0 +1,37 @@
+{
+  "counts": {
+    "mart_commune_hourly_congestion": 3696,
+    "mart_peak_hours": 154,
+    "mart_weekday_vs_weekend": 44,
+    "mart_commune_features": 22
+  },
+  "snapshots": {
+    "mart_commune_hourly_congestion": {
+      "rows": 3696,
+      "digest": "d20ebd52595f29f84dd07c54e947c0ac"
+    },
+    "mart_peak_hours": {
+      "rows": 154,
+      "digest": "b5e1898830dc682277888fdba6661053"
+    },
+    "mart_weekday_vs_weekend": {
+      "rows": 44,
+      "digest": "646ce0d9c658613c0f80f42af014322f"
+    },
+    "mart_commune_features": {
+      "rows": 22,
+      "digest": "e643dea8eaf388d8b8bdccc3f79d7079"
+    }
+  },
+  "oracle": {
+    "facts": 73920,
+    "hourly_groups": 3696,
+    "peak_rows": 154,
+    "weekend_groups": 44,
+    "feature_rows": 22
+  },
+  "idempotent_content": true,
+  "peak_ties_verified": true,
+  "rollback_verified": true,
+  "core_unchanged": true
+}
