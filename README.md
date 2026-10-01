@@ -180,6 +180,12 @@ Les preuves de chaque phase, dont l'idempotence des quatre DAGs, sont dans `docs
 
 ## Dashboard et captures
 
+La refonte UX commence par l'[audit de l'existant](docs/dashboard_audit.md),
+avec capture avant refonte et contrôle de la sélection vide. Le dashboard
+fonctionnel ci-dessous correspond encore à la version initiale.
+
+![Dashboard avant refonte](docs/screenshots/dashboard_before_redesign.jpg)
+
 La carte affiche le TTI moyen par point ; le fond CARTO demande Internet et WebGL.
 La heatmap compare les communes par heure. La comparaison semaine/week-end utilise
 les mêmes communes/heures, indépendamment du filtre jours, comme indiqué dans
