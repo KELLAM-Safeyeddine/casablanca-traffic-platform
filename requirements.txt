@@ -1,0 +1,13 @@
+# Développement local uniquement : ne pas installer Airflow dans CasaTraffic.
+numpy==1.26.4
+pandas==2.1.4
+pyarrow==18.1.0
+openpyxl==3.1.5
+SQLAlchemy==1.4.54
+psycopg2-binary==2.9.11
+pandera[pandas]==0.24.0
+pytest==8.3.5
+ruff==0.11.13
+pre-commit==4.2.0
+python-dotenv==1.2.2
+jupyter==1.1.1

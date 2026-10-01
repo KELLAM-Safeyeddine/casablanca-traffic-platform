@@ -1,0 +1,16 @@
+CasaTraffic/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+logs/*
+!logs/.gitkeep
+data/raw/*
+!data/raw/.gitkeep
+data/quarantine/*
+!data/quarantine/.gitkeep
+*.egg-info/
