@@ -1,0 +1,12 @@
+FROM apache/airflow:2.11.2-python3.11
+
+COPY --chown=airflow:root requirements-airflow.txt /opt/airflow/requirements-airflow.txt
+RUN pip install --no-cache-dir "apache-airflow==2.11.2" \
+    -r /opt/airflow/requirements-airflow.txt \
+    --constraint https://raw.githubusercontent.com/apache/airflow/constraints-2.11.2/constraints-3.11.txt \
+    && pip check
+
+COPY --chown=airflow:root dags /opt/airflow/dags
+COPY --chown=airflow:root src /opt/airflow/src
+COPY --chown=airflow:root sql /opt/airflow/sql
+ENV PYTHONPATH=/opt/airflow

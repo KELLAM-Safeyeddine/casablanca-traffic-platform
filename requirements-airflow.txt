@@ -1,0 +1,9 @@
+# Runtime Docker uniquement ; versions communes alignées avec CasaTraffic.
+numpy==1.26.4
+pandas==2.1.4
+pyarrow==18.1.0
+openpyxl==3.1.5
+SQLAlchemy==1.4.54
+psycopg2-binary==2.9.11
+pandera[pandas]==0.24.0
+python-dotenv==1.2.2

@@ -1,0 +1,11 @@
+CasaTraffic
+.git
+.env
+.env.*
+data
+logs
+notebooks
+docs
+.pytest_cache
+.ruff_cache
+**/__pycache__
