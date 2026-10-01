@@ -267,3 +267,45 @@ Le payload expose seulement DAG/run/tâche/index/état, jamais la chaîne d'exce
 qui pourrait contenir une URL de connexion. Pas de communication externe.
 Variables lues dans les tâches, connexions issues de casatraffic ; aucune
 lecture Excel, connexion PostgreSQL ou accès Variable pendant l'import des DAGs.
+
+## D025 — intégration PostGIS isolée (phase 8)
+
+Tests pytest sur une tranche horaire de 440 mesures, avec dimensions complètes
+pour conserver les vrais contrats de production. Le bootstrap lit la source
+versionnée et écrit uniquement dans un dossier temporaire. Le test refuse un
+DSN dont le nom de base ne commence pas par casatraffic_test_. Le lanceur crée
+un conteneur PostGIS 16/3.5 indépendant, port aléatoire lié à 127.0.0.1 et secret
+généré en mémoire, transmis par fichier temporaire et environnement du sous-processus.
+Le conteneur est supprimé dans finally ; aucun volume applicatif n'est touché.
+Les noms et mot de passe ne sont pas versionnés. Pas de base de test préconfigurée.
+
+Les assertions comparent le contenu complet de STAGING et CORE après relance,
+injectent un temps négatif et retrouvent son payload en quarantine, restaurent
+la partition, puis provoquent une division SQL par zéro dans une copie temporaire
+du SQL pour vérifier le rollback. Ni source ni SQL versionné ne sont modifiés.
+
+## D026 — tests de DAGs dans l'image Airflow (phase 8)
+
+unittest standard est disponible dans l'image sans pytest ni dépendance de dev.
+Le même fichier est collecté localement par pytest, avec trois skips explicites
+quand Airflow n'est pas installé ; ils sont réellement exécutés dans Docker.
+DagBag vérifie exactement les quatre DAGs ; check_cycle, types des tâches mappées,
+callbacks, retries, et DatasetTriggeredTimetable complètent les contrats.
+Le test initial utilisant DAG.schedule a échoué : Airflow 2.11.2 expose la
+condition via timetable.dataset_condition.objects. Correction validée sur l'image.
+
+## D027 — pre-commit et CI sans environnement Python supplémentaire (phase 8)
+
+Hooks repo: local, language: system ; python résout CasaTraffic par le PATH de
+la session activée. Ruff et pytest sont les versions requirements.txt. Pas de
+téléchargement de dépôt de hooks ni de venv créé par pre-commit. La CI crée
+CasaTraffic avec Python 3.11 sur Ubuntu 24.04 et exécute toutes les commandes
+Python locales via ce venv. Un second job construit l'image et teste les DAGs.
+La CI ne publie ni image ni site. Le workflow est configuré pour push, PR et
+workflow_dispatch ; aucune exécution distante revendiquée sans remote GitHub.
+Actions checkout v6 / setup-python v5 suivent l'exemple officiel consulté :
+https://docs.github.com/en/actions/tutorials/build-and-test-code/python
+
+Dans la session de vérification Windows, les commandes pre-commit/Git élevées
+utilisent safe.directory limité à ce dépôt via GIT_CONFIG_* du processus pour
+le dépôt appartenant au compte sandbox. Aucun changement de configuration Git globale.

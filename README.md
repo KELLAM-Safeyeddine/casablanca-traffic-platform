@@ -325,6 +325,46 @@ et des quatre marts, vérifie la source et les Parquet immuables, et écrit
 plusieurs publications proches peuvent être regroupées par Airflow. Ils ne
 représentent ni des dates d'observation ni des snapshots historiques versionnés.
 
+## Tests et CI (phase 8)
+
+```powershell
+.\CasaTraffic\Scripts\python.exe -m ruff check .
+.\CasaTraffic\Scripts\python.exe -m pytest -q
+.\CasaTraffic\Scripts\python.exe scripts/run_integration_tests.py
+$env:PATH = "$PWD\CasaTraffic\Scripts;$env:PATH"
+.\CasaTraffic\Scripts\python.exe -m pre_commit install
+.\CasaTraffic\Scripts\python.exe -m pre_commit run --all-files
+```
+
+Garder `CasaTraffic/Scripts` en tête du PATH de la session qui exécute `git commit`
+(ou activer CasaTraffic). Les hooks locaux utilisent ce Python et ses versions
+épinglées ; pre-commit ne crée pas d'environnement Python supplémentaire.
+Sous Linux, utiliser `CasaTraffic/bin/python` et
+`export PATH="$PWD/CasaTraffic/bin:$PATH"`.
+
+Le pytest ordinaire passe les 51 tests indépendants des services. Il ignore
+explicitement deux tests PostGIS et trois tests Airflow. Le script d'intégration
+crée un conteneur PostGIS jetable, un port local aléatoire et un secret aléatoire ;
+il lance les 53 tests applicatifs puis supprime ce conteneur, même après échec.
+Il n'utilise ni le warehouse existant ni ses fichiers RAW. Une tranche de
+440 mesures vérifie idempotence, rejet explicite et rollback STAGING/CORE.
+
+Airflow reste dans Docker. Les trois tests de DAGs vérifient imports, cycles,
+mapping, politique d'échec et Datasets dans l'image de production :
+
+```powershell
+docker build --file Dockerfile.airflow --tag casatraffic-ci:latest .
+docker run --rm --entrypoint python -v "${PWD}/tests:/opt/airflow/tests:ro" casatraffic-ci:latest -m unittest discover -s /opt/airflow/tests -p test_dag_integrity.py -v
+docker run --rm --entrypoint python casatraffic-ci:latest -m pip check
+```
+
+`.github/workflows/ci.yml` lance deux jobs Ubuntu à chaque push/PR et sur demande :
+lint + tests unitaires/PostGIS + pre-commit dans CasaTraffic ; build Docker + tests
+des DAGs + pip check dans l'image Airflow. Aucun secret du poste requis en CI,
+aucune publication d'image ni déploiement. Le dépôt local n'a actuellement pas
+de remote GitHub ; le workflow est configuré et ses commandes ont été exécutées
+localement, mais aucun run hébergé GitHub Actions n'est encore disponible.
+
 ## Limites connues et suite
 
 Le profilage constate 2 764 distances en mètres, 42 174 temps ayant perdu leur
@@ -332,7 +372,7 @@ séparateur décimal, cinq indices décalés et 254 trajets dont la distance var
 La suite de maxima TTI 5, 6, …, 23 annoncée dans le plan n'est pas présente dans cette source.
 Le simulateur ne représentera pas une collecte réelle. Les relations entre variables
 urbaines et congestion seront descriptives et ne prouveront pas de causalité.
-Les tests/CI complémentaires et le dashboard seront implémentés aux phases 8 et 9.
+Le dashboard sera implémenté à la phase 9.
 Les 51 tests présents couvrent lecture, publication RAW, rejeu, contrats
 pandera, rejets, références, doublons, seuil, conversions, dépivotage et validation CORE.
 Les tests qualité reconstruisent leurs RAW temporaires depuis la source versionnée,

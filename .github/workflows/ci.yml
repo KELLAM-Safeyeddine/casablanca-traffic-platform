@@ -1,0 +1,48 @@
+name: CasaTraffic CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Create CasaTraffic and install dev dependencies
+        run: |
+          python3.11 -m venv CasaTraffic
+          CasaTraffic/bin/python --version
+          CasaTraffic/bin/python -m pip install -r requirements.txt
+      - name: Lint
+        run: CasaTraffic/bin/python -m ruff check .
+      - name: Unit and PostGIS integration tests
+        run: CasaTraffic/bin/python scripts/run_integration_tests.py
+      - name: pre-commit (same venv)
+        run: |
+          export PATH="$PWD/CasaTraffic/bin:$PATH"
+          CasaTraffic/bin/python -m pre_commit run --all-files
+
+  airflow-image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build production Airflow image
+        run: docker build --file Dockerfile.airflow --tag casatraffic-ci:latest .
+      - name: Test DAG imports, cycles and Dataset dependencies in Airflow
+        run: |
+          docker run --rm --entrypoint python \
+            -v "$PWD/tests:/opt/airflow/tests:ro" \
+            casatraffic-ci:latest -m unittest discover \
+            -s /opt/airflow/tests -p test_dag_integrity.py -v
+      - name: Runtime dependencies
+        run: docker run --rm --entrypoint python casatraffic-ci:latest -m pip check

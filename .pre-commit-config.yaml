@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff (CasaTraffic)
+        entry: python -m ruff check
+        language: system
+        types: [python]
+      - id: pytest
+        name: pytest (CasaTraffic)
+        entry: python -m pytest -q
+        language: system
+        pass_filenames: false
+        always_run: true
