@@ -10,9 +10,23 @@
     --ct-shadow: #00000008;
     /* Couleur sombre native Plotly relevée : rgb(230,234,241), inchangée. */
     --ct-chart-label: light-dark(#526174, #E6EAF1);
+    --ct-chart-toolbar-bg: light-dark(#FFFFFF, rgba(0, 0, 0, .5));
+    --ct-chart-toolbar-icon: light-dark(#526174, rgba(255, 255, 255, .3));
+    --ct-chart-toolbar-active: light-dark(#087A86, rgba(255, 255, 255, .7));
+    /* PyDeck fournit un tooltip sombre fixe, indépendant du style de carte. */
+    --ct-map-tooltip-bg: light-dark(#FFFFFF, #29323C);
+    --ct-map-tooltip-text: light-dark(#050A12, #A0A7B4);
 }
 .stApp { background: var(--ct-bg); color: var(--ct-text); }
 [data-testid="stSidebar"] { background: var(--ct-surface); color: var(--ct-text); }
+.stApp h1, .stApp h2, .stApp h3, .stApp p, .stApp label,
+.stApp [role="tab"], .stApp button {
+    /* Clair : héritage natif ; sombre : rendu historique préservé. */
+    color: light-dark(currentColor, var(--ct-text));
+}
+.stApp [role="tab"][aria-selected="true"] { color: var(--ct-accent); }
+.stSelectbox [role="group"], .stMultiSelect [role="group"],
+.stApp input[role="combobox"] { background: var(--ct-surface); color: var(--ct-text); }
 /* Champs, tableaux canvas, alertes et aides gardent leurs couleurs natives.
    Les portails div[data-baseweb="popover"], ul[role="listbox"],
    li[role="option"] (React Aria div dans 1.64) sont volontairement natifs :
@@ -29,8 +43,18 @@
 }
 /* Sélecteurs SVG Plotly publics : conserver titres, légendes et couleurs de données. */
 .stPlotlyChart :is(.xtick, .ytick, .ztick, .cbaxis) text,
-.stPlotlyChart :is(.bartext, .xtitle, .ytitle, .cbtitle) {
+.stPlotlyChart :is(.bartext, .xtitle, .ytitle, .cbtitle),
+.stPlotlyChart .hovertext text {
     fill: var(--ct-chart-label) !important;
+}
+.stPlotlyChart .modebar-group { background: var(--ct-chart-toolbar-bg) !important; }
+.stPlotlyChart .modebar-btn path { fill: var(--ct-chart-toolbar-icon) !important; }
+.stPlotlyChart .modebar-btn:is(.active, :hover, :focus-visible) path {
+    fill: var(--ct-chart-toolbar-active) !important;
+}
+.deck-tooltip {
+    background: var(--ct-map-tooltip-bg) !important;
+    color: var(--ct-map-tooltip-text) !important;
 }
 .ct-hero { padding: 1rem 0 1.4rem; border-bottom: 1px solid var(--ct-border); }
 .ct-eyebrow { color: var(--ct-accent); letter-spacing: .15em; font-size: .72rem;

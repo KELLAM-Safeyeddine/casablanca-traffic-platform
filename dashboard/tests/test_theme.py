@@ -83,3 +83,24 @@ def test_plotly_labels_meet_aa_and_preserve_native_dark() -> None:
     assert match and match[2] == "#E6EAF1"
     for index in (0, 1):
         assert contrast_ratio(match[index + 1], PAIRS["bg"][index]) >= 4.5
+
+
+def test_map_tooltip_contrast_and_dark_preservation() -> None:
+    colors = {}
+    for name in ("bg", "text"):
+        match = re.search(
+            rf"--ct-map-tooltip-{name}:\s*light-dark\((#[\da-fA-F]+),\s*(#[\da-fA-F]+)\)", CSS
+        )
+        assert match
+        colors[name] = match.groups()
+    assert colors["bg"][1] == "#29323C"
+    assert colors["text"][1] == "#A0A7B4"
+    for index in (0, 1):
+        assert contrast_ratio(colors["text"][index], colors["bg"][index]) >= 4.5
+
+
+def test_plotly_toolbar_light_contrast() -> None:
+    for name in ("icon", "active"):
+        match = re.search(rf"--ct-chart-toolbar-{name}:\s*light-dark\((#[\da-fA-F]+),", CSS)
+        assert match
+        assert contrast_ratio(match[1], PAIRS["surface"][0]) >= 3
