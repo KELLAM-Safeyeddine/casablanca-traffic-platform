@@ -1,7 +1,9 @@
 """Couverture, rapports qualité et exports complets de la sélection."""
 
+import pandas as pd
 import streamlit as st
 
+from dashboard.components.formatting import number, timestamp
 from dashboard.components.i18n import tr
 from dashboard.data.filters import Filters
 from dashboard.data.metadata import read_metadata
@@ -11,7 +13,15 @@ from dashboard.data.queries import fetch
 def render(filters: Filters, catalog: tuple[int, ...]) -> None:
     """Séparer données métier, métadonnées collectées et date d'observation inconnue."""
     st.subheader(tr("Couverture du warehouse", "Warehouse coverage"))
-    st.dataframe(fetch("coverage"), hide_index=True, width="stretch")
+    coverage = fetch("coverage").rename(
+        columns={
+            "facts": tr("Observations", "Observations"),
+            "points": tr("Points", "Points"),
+            "trajectories": tr("Trajets", "Routes"),
+            "communes": tr("Communes", "Districts"),
+        }
+    )
+    st.dataframe(coverage, hide_index=True, width="stretch")
     metadata = read_metadata()
     if not metadata.get("available", True):
         st.warning(
@@ -22,7 +32,9 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
         )
     else:
         st.caption(
-            tr("Métadonnées collectées à", "Metadata collected at") + " " + metadata["collected_at"]
+            tr("Métadonnées collectées à", "Metadata collected at")
+            + " "
+            + timestamp(metadata["collected_at"], st.session_state.language)
         )
         if metadata["stale"]:
             st.warning(
@@ -31,15 +43,54 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
                     "Report older than one hour: freshness needs verification.",
                 )
             )
-        st.dataframe(metadata["dags"], hide_index=True, width="stretch")
-        st.write(
-            tr(
-                "Journal quarantine (événements, pas lignes supprimées)",
-                "Quarantine journal (events, not deleted rows)",
+        quarantine = metadata.get("quarantine", {})
+        st.metric(
+            tr("Événements en quarantaine", "Quarantine events"),
+            number(quarantine.get("total"), 0, st.session_state.language),
+            help=tr(
+                "Journal d'anomalies : les événements réparables restent dans les faits.",
+                "Anomaly journal: repaired observations remain in the facts.",
             ),
-            metadata.get("quarantine"),
         )
-        st.write(tr("Dernier audit observé", "Last observed audit"), metadata.get("quality"))
+        st.caption(
+            f"{number(quarantine.get('repairable'), 0, st.session_state.language)} "
+            + tr("réparables", "repairable")
+            + " · "
+            + f"{number(quarantine.get('warning'), 0, st.session_state.language)} "
+            + tr("avertissements", "warnings")
+        )
+        audit = metadata.get("quality", {})
+        if audit.get("status") == "passed" and not metadata["stale"]:
+            st.success(
+                tr("Contrôles qualité réussis", "Quality checks passed")
+                + " · "
+                + number(audit.get("facts_checked"), 0, st.session_state.language)
+                + " "
+                + tr("observations vérifiées", "observations checked")
+            )
+        else:
+            st.warning(tr("Statut qualité à vérifier.", "Quality status needs verification."))
+        st.caption(
+            tr("Dernier audit : ", "Last audit: ")
+            + timestamp(audit.get("checked_at"), st.session_state.language)
+            + tr(" · Dernière ingestion : ", " · Latest ingestion: ")
+            + timestamp(audit.get("latest_ingestion_end"), st.session_state.language)
+        )
+        runs = pd.DataFrame(metadata["dags"])
+        if not runs.empty:
+            states = {"success": tr("Succès", "Success"), "running": tr("En cours", "Running")}
+            runs["state"] = runs.state.map(lambda value: states.get(value, value))
+            runs["end_date"] = runs.end_date.map(
+                lambda value: timestamp(value, st.session_state.language)
+            )
+            runs = runs[["dag_id", "state", "end_date"]].rename(
+                columns={
+                    "dag_id": "DAG",
+                    "state": tr("État", "State"),
+                    "end_date": tr("Dernière fin (UTC)", "Latest end (UTC)"),
+                }
+            )
+            st.dataframe(runs, hide_index=True, width="stretch")
     st.caption(
         tr(
             "Les dates ci-dessus sont des dates de traitement/collecte, pas d'observation.",

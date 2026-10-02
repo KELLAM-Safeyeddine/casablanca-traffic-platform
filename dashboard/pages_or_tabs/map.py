@@ -8,10 +8,21 @@ import streamlit as st
 from dashboard.components.charts import labels, rgba
 from dashboard.components.filters import local_choice
 from dashboard.components.i18n import DAYS, tr
+from dashboard.components.tables import show as show_table
 from dashboard.data.filters import Filters
 from dashboard.data.queries import fetch
 
 LOGGER = logging.getLogger(__name__)
+
+
+def unavailable() -> None:
+    """Afficher la panne sans traceback, y compris lors d'un rerun de fragment."""
+    st.error(
+        tr(
+            "Carte indisponible. Actualisez les données pour réessayer.",
+            "Map unavailable. Refresh the data to retry.",
+        )
+    )
 
 
 def draw(filters: Filters, day: int, hour: int, mode: str) -> None:
@@ -70,7 +81,7 @@ def draw(filters: Filters, day: int, hour: int, mode: str) -> None:
                 "Smoothed intensity; exact point values are in the table.",
             )
         )
-    st.dataframe(points.drop(columns=["color", "radius"]), hide_index=True, width="stretch")
+    show_table(points)
 
 
 def render(filters: Filters, catalog: tuple[int, ...]) -> None:
@@ -88,7 +99,10 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
         tr("Affichage", "Display"),
         ["points", "heatmap"],
         tr("Points exacts ou intensité lissée.", "Exact points or smoothed intensity."),
+        lambda value: tr("Points", "Points") if value == "points" else tr("Intensité", "Heatmap"),
     )
+    if st.session_state.pop("map_failed", False):
+        st.session_state.playing = False
     st.toggle(
         tr("Lecture / pause", "Play / pause"),
         key="playing",
@@ -101,6 +115,9 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
     @st.fragment(run_every=1 if st.session_state.playing else None)
     def frame() -> None:
         """Ne rerendre que la tranche active, sans sleep ni requête de tous les onglets."""
+        if st.session_state.get("map_failed"):
+            unavailable()
+            return
         start, end = filters.hours
         current = st.session_state.get("map_hour", st.query_params.get("map_hour", str(start)))
         try:
@@ -124,12 +141,7 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
             draw(filters, day, hour, mode)
         except Exception:
             LOGGER.exception("Map frame unavailable")
-            st.session_state.playing = False
-            st.error(
-                tr(
-                    "Carte indisponible. Actualisez les données pour réessayer.",
-                    "Map unavailable. Refresh the data to retry.",
-                )
-            )
+            st.session_state.map_failed = True
+            unavailable()
 
     frame()

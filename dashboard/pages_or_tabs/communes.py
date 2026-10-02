@@ -8,6 +8,7 @@ from dashboard.components.charts import SERIES, labels, scale, show
 from dashboard.components.filters import local_choice
 from dashboard.components.formatting import number
 from dashboard.components.i18n import tr
+from dashboard.components.tables import show as show_table
 from dashboard.data.filters import Filters
 from dashboard.data.queries import correlations, fetch
 
@@ -20,6 +21,9 @@ def ranking(filters: Filters) -> None:
         tr("Classement", "Ranking"),
         ["top", "bottom"],
         tr("Plus ou moins congestionnées.", "Most or least congested."),
+        lambda value: tr("Plus congestionnées", "Most congested")
+        if value == "top"
+        else tr("Moins congestionnées", "Least congested"),
     )
     count = local_choice(
         "ranking_n",
@@ -46,7 +50,7 @@ def ranking(filters: Filters) -> None:
         yaxis={"autorange": "reversed"}, height=max(340, count * 28 + 100), xaxis_title="TTI"
     )
     show(figure, "commune_ranking", tr("Classement des communes", "District ranking"), "")
-    st.dataframe(displayed, hide_index=True, width="stretch")
+    show_table(displayed)
 
 
 def association(filters: Filters) -> None:
@@ -76,6 +80,7 @@ def association(filters: Filters) -> None:
             x=frame[variable],
             y=frame.tti_mean,
             mode="markers",
+            name=tr("Communes", "Districts"),
             marker={"color": SERIES[0], "size": 12},
             customdata=list(
                 zip(frame.commune, labels(frame.tti_mean), labels(frame[variable]), strict=True)

@@ -7,6 +7,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from dashboard.data import queries
+from dashboard.pages_or_tabs import map, quality
 
 APP = Path(__file__).parents[1] / "app.py"
 
@@ -107,3 +108,45 @@ def test_database_failure_is_readable(monkeypatch) -> None:
     app = AppTest.from_file(str(APP)).run(timeout=30)
     assert not app.exception and len(app.error) == 1
     assert "sensitive" not in app.error[0].value
+
+
+def test_navigation_keeps_selection_across_url_updates() -> None:
+    app = AppTest.from_file(str(APP)).run(timeout=30)
+    for name, index in [("Heures de pointe", 2), ("Communes", 4), ("Semaine vs Week-end", 3)]:
+        app.session_state["navigation"] = name
+        app.run(timeout=30)
+        assert not app.exception and not app.error
+        assert app.query_params["tab"] == [str(index)]
+
+
+def test_map_frame_failure_is_readable(monkeypatch) -> None:
+    def fail(*args, **kwargs):
+        raise RuntimeError("private connection details")
+
+    monkeypatch.setattr(map, "draw", fail)
+    app = AppTest.from_file(str(APP))
+    app.query_params["tab"] = "1"
+    app.run(timeout=30)
+    assert not app.exception and len(app.error) == 1
+    assert "Carte indisponible" in app.error[0].value
+    assert "private" not in app.error[0].value
+
+
+def test_stale_metadata_never_displays_quality_success(monkeypatch) -> None:
+    monkeypatch.setattr(
+        quality,
+        "read_metadata",
+        lambda: {
+            "available": True,
+            "stale": True,
+            "collected_at": "2026-10-02T00:00:00+00:00",
+            "dags": [],
+            "quarantine": {"total": 485, "repairable": 314, "warning": 171},
+            "quality": {"status": "passed", "facts_checked": 73920},
+        },
+    )
+    app = AppTest.from_file(str(APP))
+    app.query_params["tab"] = "5"
+    app.run(timeout=30)
+    assert not app.exception and not app.success
+    assert any("Statut qualité" in warning.value for warning in app.warning)

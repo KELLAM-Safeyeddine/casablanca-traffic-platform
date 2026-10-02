@@ -7,6 +7,7 @@ import streamlit as st
 from dashboard.components.charts import SERIES, labels, scale, show
 from dashboard.components.filters import local_choice
 from dashboard.components.i18n import tr
+from dashboard.components.tables import show as show_table
 from dashboard.data.filters import Filters
 from dashboard.data.queries import fetch
 
@@ -86,4 +87,4 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
         tr("Congestion par commune et heure", "District/hour congestion"),
         tr("Commune", "District"),
     )
-    st.dataframe(frame, hide_index=True, width="stretch")
+    show_table(frame)

@@ -6,7 +6,7 @@ from datetime import UTC, datetime, timedelta
 import pandas as pd
 import pytest
 
-from dashboard.components.formatting import number, summary
+from dashboard.components.formatting import number, summary, timestamp
 from dashboard.components.kpis import period_gap
 from dashboard.data import metadata, queries
 from dashboard.data.filters import Filters, decode, encode
@@ -19,6 +19,13 @@ from dashboard.data.filters import Filters, decode, encode
 def test_french_number(value: object, expected: str) -> None:
     assert number(value) == expected
     assert number(12345.678, language="en") == "12,345.68"
+
+
+def test_timestamp_uses_explicit_utc_and_preserves_missing_values() -> None:
+    assert timestamp("2026-10-02T01:10:00+01:00") == "02/10/2026 00:10 UTC"
+    assert timestamp("2026-10-02T00:10:00+00:00", "en") == "2026-10-02 00:10 UTC"
+    assert timestamp(None) == "—"
+    assert timestamp("2026-10-02T00:10:00") == "—"
 
 
 @pytest.mark.parametrize("communes", [(), (1,), (1, 2)])

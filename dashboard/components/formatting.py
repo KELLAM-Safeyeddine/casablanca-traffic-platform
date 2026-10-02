@@ -1,9 +1,22 @@
 """Formats localisés et résumés déterministes, sans agrégation métier en pandas."""
 
+from datetime import UTC, datetime
 from html import escape
 from math import isfinite
 
 import pandas as pd
+
+
+def timestamp(value: object, language: str = "fr") -> str:
+    """Afficher une date UTC explicite, avec une absence lisible."""
+    try:
+        parsed = datetime.fromisoformat(str(value))
+        if parsed.tzinfo is None:
+            return "—"
+        pattern = "%d/%m/%Y %H:%M UTC" if language == "fr" else "%Y-%m-%d %H:%M UTC"
+        return parsed.astimezone(UTC).strftime(pattern)
+    except (ValueError, TypeError):
+        return "—"
 
 
 def number(value: object, digits: int = 2, language: str = "fr") -> str:

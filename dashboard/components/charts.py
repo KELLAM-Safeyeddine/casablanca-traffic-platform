@@ -52,11 +52,14 @@ def show(figure: go.Figure, name: str, title: str, y_title: str = "TTI") -> None
         font={"family": "Inter, Arial, sans-serif", "color": "#F1F5F9" if dark else "#172538"},
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin={"l": 10, "r": 10, "t": 55, "b": 35},
+        margin={"l": 10, "r": 10, "t": 55, "b": 85},
         yaxis_title=y_title,
         separators=", " if st.session_state.get("language") == "fr" else ".,",
-        legend={"orientation": "h", "y": 1.12},
+        legend={"orientation": "h", "y": -0.22, "x": 0},
     )
+    figure.update_xaxes(tickformat=".2f" if figure.layout.xaxis.title.text == "TTI" else ",.0f")
+    if y_title == "TTI":
+        figure.update_yaxes(tickformat=".2f")
     st.plotly_chart(
         figure,
         width="stretch",

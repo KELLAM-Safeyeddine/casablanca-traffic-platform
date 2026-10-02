@@ -1,0 +1,96 @@
+{
+  "measured_at": "2026-10-02T00:50:24.358Z",
+  "method": "Browser click to visible view content, including automation round trips; three warm repetitions; external basemap tiles excluded",
+  "measurements": [
+    {
+      "view": "Vue d'ensemble",
+      "repeat": 1,
+      "seconds": 0.317
+    },
+    {
+      "view": "Carte",
+      "repeat": 1,
+      "seconds": 0.334
+    },
+    {
+      "view": "Heures de pointe",
+      "repeat": 1,
+      "seconds": 0.477
+    },
+    {
+      "view": "Semaine vs Week-end",
+      "repeat": 1,
+      "seconds": 0.375
+    },
+    {
+      "view": "Communes",
+      "repeat": 1,
+      "seconds": 0.423
+    },
+    {
+      "view": "Données & qualité",
+      "repeat": 1,
+      "seconds": 0.271
+    },
+    {
+      "view": "Vue d'ensemble",
+      "repeat": 2,
+      "seconds": 0.344
+    },
+    {
+      "view": "Carte",
+      "repeat": 2,
+      "seconds": 0.283
+    },
+    {
+      "view": "Heures de pointe",
+      "repeat": 2,
+      "seconds": 0.356
+    },
+    {
+      "view": "Semaine vs Week-end",
+      "repeat": 2,
+      "seconds": 0.345
+    },
+    {
+      "view": "Communes",
+      "repeat": 2,
+      "seconds": 0.338
+    },
+    {
+      "view": "Données & qualité",
+      "repeat": 2,
+      "seconds": 0.202
+    },
+    {
+      "view": "Vue d'ensemble",
+      "repeat": 3,
+      "seconds": 0.271
+    },
+    {
+      "view": "Carte",
+      "repeat": 3,
+      "seconds": 0.275
+    },
+    {
+      "view": "Heures de pointe",
+      "repeat": 3,
+      "seconds": 0.345
+    },
+    {
+      "view": "Semaine vs Week-end",
+      "repeat": 3,
+      "seconds": 0.351
+    },
+    {
+      "view": "Communes",
+      "repeat": 3,
+      "seconds": 0.362
+    },
+    {
+      "view": "Données & qualité",
+      "repeat": 3,
+      "seconds": 0.179
+    }
+  ]
+}

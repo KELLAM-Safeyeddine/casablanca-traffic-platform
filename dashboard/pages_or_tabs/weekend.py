@@ -7,6 +7,7 @@ from dashboard.components.charts import SERIES, labels, show
 from dashboard.components.filters import local_choice
 from dashboard.components.formatting import number
 from dashboard.components.i18n import tr
+from dashboard.components.tables import show as show_table
 from dashboard.data.filters import Filters
 from dashboard.data.queries import fetch
 
@@ -56,7 +57,7 @@ def period_chart(filters: Filters) -> None:
             "Both periods retained: same districts/hours, day/period filters ignored.",
         )
     )
-    st.dataframe(periods, hide_index=True, width="stretch")
+    show_table(periods)
 
 
 def compare_districts(filters: Filters, catalog: tuple[int, ...]) -> None:
