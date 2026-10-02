@@ -7,7 +7,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from dashboard.data import queries
-from dashboard.pages_or_tabs import map, quality
+from dashboard.pages_or_tabs import communes, map, quality
 
 APP = Path(__file__).parents[1] / "app.py"
 
@@ -78,9 +78,11 @@ def mocked_results(monkeypatch):
 
 
 @pytest.mark.parametrize("tab", range(6))
-def test_each_tab_renders_without_raw_error(tab: int) -> None:
+@pytest.mark.parametrize("language", ["fr", "en"])
+def test_each_tab_renders_without_raw_error(tab: int, language: str) -> None:
     app = AppTest.from_file(str(APP))
     app.query_params["tab"] = str(tab)
+    app.query_params["lang"] = language
     app.run(timeout=30)
     assert not app.exception
     assert not app.error
@@ -117,6 +119,36 @@ def test_navigation_keeps_selection_across_url_updates() -> None:
         app.run(timeout=30)
         assert not app.exception and not app.error
         assert app.query_params["tab"] == [str(index)]
+
+
+def test_language_change_translates_options_without_losing_filters() -> None:
+    app = AppTest.from_file(str(APP)).run(timeout=30)
+    app.sidebar.multiselect[0].set_value([1]).run(timeout=30)
+    app.sidebar.slider[0].set_value((7, 19)).run(timeout=30)
+    app.sidebar.selectbox[0].select("en").run(timeout=30)
+    assert not app.exception and not app.error
+    assert app.sidebar.selectbox[1].options == ["Traffic", "Cividis · accessible"]
+    assert app.sidebar.multiselect[0].options[0] == "Monday"
+    assert app.query_params["days"] == ["1"]
+    assert app.query_params["hours"] == ["7,19"]
+    app.sidebar.selectbox[0].select("fr").run(timeout=30)
+    assert app.sidebar.selectbox[1].options == ["Trafic", "Cividis · accessible"]
+    assert app.query_params["days"] == ["1"]
+
+
+def test_language_change_preserves_latest_local_selection(monkeypatch) -> None:
+    # AppTest sérialise les labels hors du contexte Streamlit utilisé par tr().
+    # La traduction des filtres globaux est couverte séparément ; ici, tester l'état.
+    monkeypatch.setattr(communes, "tr", lambda french, english: french)
+    app = AppTest.from_file(str(APP))
+    app.query_params["tab"] = "4"
+    app.run(timeout=30)
+    app.sidebar.selectbox[0].select("en").run(timeout=30)
+    app.selectbox(key="ranking_order_en").select("bottom").run(timeout=30)
+    app.sidebar.selectbox[0].select("fr").run(timeout=30)
+    assert not app.exception and not app.error
+    assert app.selectbox(key="ranking_order_fr").value == "bottom"
+    assert app.query_params["ranking_order"] == ["bottom"]
 
 
 def test_map_frame_failure_is_readable(monkeypatch) -> None:

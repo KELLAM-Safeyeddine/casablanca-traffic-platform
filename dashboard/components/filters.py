@@ -10,6 +10,20 @@ from dashboard.components.i18n import DAYS, tr
 from dashboard.data.filters import Filters, decode, encode
 
 T = TypeVar("T")
+FIELDS = ("appearance", "palette", "period", "days", "hours", "all_communes", "selected_communes")
+
+
+def widget_key(field: str) -> str:
+    """Isoler l'identité affichée pour que les labels traduits ne restent pas en cache."""
+    return f"filters_{st.session_state.language}_{field}"
+
+
+def translate_widgets() -> None:
+    """Réinitialiser uniquement les identités visuelles lors d'une bascule de langue."""
+    if st.session_state.get("sidebar_language") != st.session_state.language:
+        for field in FIELDS:
+            st.session_state[widget_key(field)] = st.session_state[field]
+        st.session_state.sidebar_language = st.session_state.language
 
 
 def reset() -> None:
@@ -22,6 +36,8 @@ def reset() -> None:
         period="all",
         playing=False,
     )
+    for field in FIELDS:
+        st.session_state[widget_key(field)] = st.session_state[field]
 
 
 def initialize(catalog: tuple[int, ...]) -> None:
@@ -65,6 +81,7 @@ def sidebar(catalog: pd.DataFrame) -> Filters:
             help="Langue des libellés et des formats / Labels and number formats",
         )
         day_names = DAYS[st.session_state.language]
+        translate_widgets()
         palettes = {"traffic": tr("Trafic", "Traffic"), "cividis": "Cividis · accessible"}
         periods = {
             "all": tr("Toute la semaine", "All"),
@@ -76,49 +93,49 @@ def sidebar(catalog: pd.DataFrame) -> Filters:
         st.caption(
             tr("Thème : menu ⋮ en haut à droite.", "Theme: ⋮ menu at the top right.")
         )
-        st.selectbox(
+        st.session_state.palette = st.selectbox(
             tr("Palette", "Palette"),
             ["traffic", "cividis"],
-            key="palette",
+            key=widget_key("palette"),
             format_func=palettes.get,
             help=tr("Cividis facilite la lecture daltonienne.", "Cividis is colorblind friendly."),
         )
         st.divider()
-        st.selectbox(
+        st.session_state.period = st.selectbox(
             tr("Type de période", "Period"),
             ["all", "weekday", "weekend"],
-            key="period",
+            key=widget_key("period"),
             format_func=periods.get,
             help=tr("Intersection avec les jours sélectionnés.", "Intersect with selected days."),
         )
-        st.multiselect(
+        st.session_state.days = st.multiselect(
             tr("Jours", "Days"),
             list(range(1, 8)),
-            key="days",
+            key=widget_key("days"),
             format_func=lambda d: day_names[d - 1],
             placeholder=tr("Choisir les jours", "Choose days"),
             help=tr("Aucun jour = aucune donnée.", "No days means no data."),
         )
-        st.slider(
+        st.session_state.hours = st.slider(
             tr("Plage d'heures", "Hour range"),
             0,
             23,
-            key="hours",
+            key=widget_key("hours"),
             help=tr(
                 "Bornes incluses ; heures de la semaine type.",
                 "Inclusive bounds within the typical week.",
             ),
         )
-        st.checkbox(
+        st.session_state.all_communes = st.checkbox(
             tr("Toutes les communes", "All districts"),
-            key="all_communes",
+            key=widget_key("all_communes"),
             help=tr("Désactiver pour choisir des communes.", "Uncheck to choose districts."),
         )
         if not st.session_state.all_communes:
-            st.multiselect(
+            st.session_state.selected_communes = st.multiselect(
                 tr("Communes", "Districts"),
                 ids,
-                key="selected_communes",
+                key=widget_key("selected_communes"),
                 format_func=names.get,
                 placeholder=tr("Rechercher", "Search"),
                 help=tr("Aucune commune = aucune donnée.", "No districts means no data."),
@@ -167,7 +184,11 @@ def local_choice(
         fallback = default if default in options else options[0]
         match = next((v for v in options if str(v) == st.query_params.get(key)), fallback)
         st.session_state[key] = match
-    result = st.selectbox(label, options, key=key, help=help_text, format_func=format_func)
+    display_key = f"{key}_{st.session_state.language}"
+    if display_key not in st.session_state or st.session_state[display_key] not in options:
+        st.session_state[display_key] = st.session_state[key]
+    result = st.selectbox(label, options, key=display_key, help=help_text, format_func=format_func)
+    st.session_state[key] = result
     if st.query_params.get(key) != str(result):
         st.query_params[key] = str(result)
     return result
