@@ -31,7 +31,9 @@ Ce sélecteur ne change **jamais** le thème natif Streamlit.
 ## Stratégie de correction
 
 Une seule source : le thème natif sélectionné dans le menu Streamlit.
-Conserver les palettes TOML existantes, supprimer les recolorations globales,
+Conserver la palette sombre TOML et renforcer le contraste de la palette claire.
+Supprimer les recolorations globales du mode clair ; conserver explicitement
+les couleurs historiques en sombre avec `light-dark(currentColor, ...)`.
 et faire suivre les cartes HTML au `color-scheme` natif avec des variables
 CSS `light-dark()`. Les portails et les tableaux restent entièrement natifs.
 Plotly utilise le thème frontal Streamlit ; PyDeck reçoit `map_style=None`,
@@ -66,3 +68,54 @@ deux couleurs opaques.
 
 Le menu de Streamlit 1.64 affiche directement **Theme → System / Light / Dark**,
 sans sous-écran Settings. Ce chemin est utilisé pour les essais à chaud.
+
+## Causes supplémentaires observées pendant les essais
+
+- Les tooltips PyDeck ont des couleurs fixes par défaut : fond `#29323C`,
+  texte `#A0A7B4`, même quand CARTO passe au clair. Le sélecteur public
+  `.deck-tooltip` utilise désormais des variables à deux variantes ; les deux
+  couleurs sombres mesurées restent exactement celles d'origine.
+- Les tooltips Plotly utilisent aussi le gris natif clair à contraste trop
+  faible. Les classes SVG publiques des graduations, labels et tooltips
+  suivent une variable `light-dark()` ; le sombre conserve `#E6EAF1`.
+- La barre de boutons Plotly conserve par défaut un fond noir à 50 % et des
+  icônes blanches à 30 %/70 %, même en clair. Sa variante claire utilise
+  blanc, gris lisible et accent ; ses valeurs sombres restent identiques.
+
+## Décision utilisateur : priorité au sombre identique
+
+L'utilisateur a choisi : **« Conserver le sombre identique et documenter cette
+exception »**. Les puces de jours blanches sur cyan `#58CCD4` restent donc à
+**1,91:1**. Les icônes Plotly inactives conservent également leur contraste
+hérité, environ **2,58:1** selon la composition alpha du fond sombre, sous le
+seuil UI de 3:1. Elles deviennent plus contrastées au survol/à l'activation.
+Ces exceptions empêchent de déclarer le dashboard sombre entièrement conforme
+WCAG AA. Les bordures décoratives ne sont pas utilisées comme seul indicateur.
+
+La palette, les cartes KPI, les graphiques et les couleurs des tableaux/menus
+sombres sont préservés. Le seul changement de commande visible est l'accès
+au menu natif à la place du sélecteur Apparence désynchronisé : les captures
+entières ne sont donc pas promises identiques pixel par pixel.
+
+## Validation finale
+
+Les six onglets ont été ouverts dans chaque mode, puis capturés avec une liste
+ouverte. Les aides, tableaux, tooltips Plotly/PyDeck, expanders et export CSV
+ont des captures complémentaires dans `light_after/` et `dark_after/`.
+La carte et les tableaux ont été basculés via le menu natif sans appel de
+rechargement de page. Les couleurs calculées du DOM sont enregistrées dans
+[`dashboard_theme_observations.json`](dashboard_theme_observations.json).
+
+La vérification porte sur les composants présents : le dashboard utilise
+`st.dataframe`, les champs d'autocomplétion des filtres, les sliders, les onglets,
+les expanders et les bannières info/succès. Il n'a pas de `st.table`, de radio
+métier ou de champ texte libre supplémentaire. Les erreurs et sélections vides
+restent couvertes par AppTest ; aucune panne de production n'a été provoquée.
+
+Les couleurs principales/secondaires, les graduations, les tooltips et les
+en-têtes canvas composés respectent les seuils testés. Exemples mesurés :
+accent clair **4,73:1**, graduations claires **5,89:1**, tooltip de carte sombre
+**5,37:1**. Les onze tests de thème contrôlent aussi l'absence de littéraux
+couleur hors des variables CSS et la palette sombre historique.
+
+Voir la [galerie de validation](dashboard_light_mode_validation.md).

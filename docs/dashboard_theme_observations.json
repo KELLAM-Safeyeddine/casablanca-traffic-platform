@@ -1,0 +1,23 @@
+{
+  "observations": [
+    {
+      "background": "rgb(245, 247, 250)",
+      "mapTooltip": {
+        "background": "rgb(255, 255, 255)",
+        "text": "rgb(5, 10, 18)"
+      },
+      "scheme": "light",
+      "text": "rgb(5, 10, 18)"
+    },
+    {
+      "background": "rgb(11, 18, 32)",
+      "mapTooltip": {
+        "background": "rgb(41, 50, 60)",
+        "text": "rgb(160, 167, 180)"
+      },
+      "scheme": "dark",
+      "text": "rgb(241, 245, 249)"
+    }
+  ],
+  "method": "Couleurs calculées du DOM rendu, bascule native sans rechargement entre les deux observations."
+}

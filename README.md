@@ -180,6 +180,34 @@ Les preuves de chaque phase, dont l'idempotence des quatre DAGs, sont dans `docs
 
 ## Dashboard et captures
 
+### Correction du mode clair
+
+Le thème se choisit désormais dans le menu **⋮ → Theme → Light / Dark** en haut
+à droite. Ce choix natif pilote aussi les tableaux canvas, les menus ouverts,
+les graphiques et le fond de carte à chaud. L'ancien sélecteur Apparence,
+indépendant du thème Streamlit, a été retiré.
+
+Le [diagnostic précis](docs/dashboard_light_mode_bugs.md) et la
+[galerie des six onglets dans les deux modes](docs/dashboard_light_mode_validation.md)
+documentent la correction. La palette sombre est conservée ; à la demande
+de l'utilisateur, les puces cyan et les icônes Plotly inactives gardent leurs
+exceptions de contraste. Aucune conformité AA intégrale du sombre n'est revendiquée.
+
+![Avant : tableau sombre dans une page claire](docs/screenshots/bug_light_before/06_quality.jpg)
+![Après : tableau clair et menu ouvert lisible](docs/screenshots/light_after/06_quality_dropdown.jpg)
+![Après : rendu sombre conservé](docs/screenshots/dark_after/01_overview.jpg)
+
+Reconstruire et vérifier le correctif depuis la racine du projet :
+
+```powershell
+docker compose up -d --build dashboard
+docker compose ps dashboard
+.\CasaTraffic\Scripts\python.exe -m pytest -q
+.\CasaTraffic\Scripts\python.exe -m ruff check .
+```
+
+Les captures ci-dessous retracent la refonte et le déploiement précédents.
+
 La refonte UX commence par l'[audit de l'existant](docs/dashboard_audit.md),
 avec capture avant refonte et contrôle de la sélection vide. Le dashboard
 fonctionnel ci-dessous correspond encore à la version initiale.
