@@ -26,30 +26,17 @@ def rgba(tti: float) -> list[int]:
 
 
 def skin() -> None:
-    """Appliquer les variables et la CSS légère de l'application."""
-    dark = st.session_state.get("appearance") == "dark"
-    colors = (
-        ("#0B1220", "#162033", "#F1F5F9", "#B5C1D1", "#58CCD4", "#334155")
-        if dark
-        else ("#F5F7FA", "#FFFFFF", "#172538", "#526174", "#087F8C", "#D8E1EA")
-    )
-    variables = ";".join(
-        f"--ct-{key}:{value}"
-        for key, value in zip(
-            ["bg", "surface", "text", "muted", "accent", "border"], colors, strict=True
-        )
-    )
+    """Suivre le color-scheme natif, y compris sans nouvelle exécution Python."""
     css = (Path(__file__).parents[1] / "assets/style.css").read_text(encoding="utf-8")
-    st.html(f"<style>:root{{{variables}}}{css}</style>")
+    st.html(f"<style>{css}</style>")
 
 
 def show(figure: go.Figure, name: str, title: str, y_title: str = "TTI") -> None:
     """Normaliser la présentation et conserver un bouton PNG natif côté navigateur."""
-    dark = st.session_state.get("appearance") == "dark"
     figure.update_layout(
         title={"text": title, "font": {"size": 17}},
-        template="plotly_dark" if dark else "plotly_white",
-        font={"family": "Inter, Arial, sans-serif", "color": "#F1F5F9" if dark else "#172538"},
+        template="plotly",
+        font={"family": "Inter, Arial, sans-serif"},
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         margin={"l": 10, "r": 10, "t": 55, "b": 85},
@@ -64,6 +51,7 @@ def show(figure: go.Figure, name: str, title: str, y_title: str = "TTI") -> None
         figure,
         width="stretch",
         key=name,
+        theme="streamlit",
         config={
             "displaylogo": False,
             "toImageButtonOptions": {"format": "png", "filename": "casablanca_" + name, "scale": 2},

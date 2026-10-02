@@ -56,11 +56,9 @@ def draw(filters: Filters, day: int, hour: int, mode: str) -> None:
             threshold=0.05,
             color_range=[rgba(v) for v in [1, 1.2, 1.4, 1.6, 1.8, 2]],
         )
-    dark = st.session_state.appearance == "dark"
-    style = "dark-matter" if dark else "positron"
     deck = pdk.Deck(
         layers=[layer],
-        map_style=f"https://basemaps.cartocdn.com/gl/{style}-gl-style/style.json",
+        map_style=None,  # Le frontend suit à chaud le thème natif (CARTO inchangé).
         initial_view_state=pdk.ViewState(latitude=33.57, longitude=-7.58, zoom=10.5),
         tooltip={
             "text": "{commune} · #{point_id}\nTTI {tti_mean_label}\n"

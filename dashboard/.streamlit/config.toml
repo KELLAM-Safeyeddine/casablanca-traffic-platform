@@ -3,16 +3,17 @@ headless = true
 [browser]
 gatherUsageStats = false
 [client]
-toolbarMode = "minimal"
+toolbarMode = "viewer"
 showErrorDetails = "none"
 [theme]
 font = "sans serif"
 baseRadius = "large"
 [theme.light]
-primaryColor = "#087F8C"
+primaryColor = "#087A86"
 backgroundColor = "#F5F7FA"
 secondaryBackgroundColor = "#FFFFFF"
-textColor = "#172538"
+textColor = "#050A12"
+grayTextColor = "#526174"
 [theme.dark]
 primaryColor = "#58CCD4"
 backgroundColor = "#0B1220"

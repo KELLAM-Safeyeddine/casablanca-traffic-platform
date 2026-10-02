@@ -44,3 +44,25 @@ Références : [thèmes Streamlit](https://docs.streamlit.io/develop/concepts/co
 
 Les modifications FR/EN et captures déjà présentes avant cette intervention
 appartiennent au travail précédent ; elles ne sont pas des corrections de ce bug.
+
+## Diagnostic complémentaire avant validation
+
+Le DOM des menus de 1.64.0 utilise **React Aria** (`div[role=listbox]` et
+`div[role=option]`), pas seulement les anciens portails BaseWeb. Leurs couleurs
+doivent rester natives ; les recolorer par des variables de `:root` serait
+incorrect car ce portail n'hérite pas du `color-scheme` de `.stApp`.
+
+Le frontend installé confirme que `map_style=None` choisit les mêmes URL CARTO
+selon le thème et que `theme="streamlit"` remet à jour les couleurs Plotly
+côté navigateur. `st.context.theme` n'est utilisé que pour la compatibilité
+du paramètre d'URL, jamais pour le rendu à chaud.
+
+Autre défaut mesuré : l'accent clair initial `#087F8C` atteint **4,42:1** sur
+`#F5F7FA`. Les graduations Plotly natives claires sont `rgb(128,132,149)`.
+Les graduations sombres sont `rgb(230,234,241)`, à préserver exactement.
+Les en-têtes canvas utilisent le texte natif à 60 % d'opacité : leur contraste
+doit être testé après composition avec le fond, pas seulement en comparant
+deux couleurs opaques.
+
+Le menu de Streamlit 1.64 affiche directement **Theme → System / Light / Dark**,
+sans sous-écran Settings. Ce chemin est utilisé pour les essais à chaud.

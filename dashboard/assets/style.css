@@ -1,11 +1,22 @@
 /* Classes publiques et rôles accessibles ; aucune classe Emotion ni nth-child. */
+:root {
+    /* light-dark() se résout au color-scheme de l'élément natif, pas de l'OS. */
+    --ct-bg: light-dark(#F5F7FA, #0B1220);
+    --ct-surface: light-dark(#FFFFFF, #162033);
+    --ct-text: light-dark(#050A12, #F1F5F9);
+    --ct-muted: light-dark(#526174, #B5C1D1);
+    --ct-accent: light-dark(#087A86, #58CCD4);
+    --ct-border: light-dark(#D8E1EA, #334155);
+    --ct-shadow: #00000008;
+    /* Couleur sombre native Plotly relevée : rgb(230,234,241), inchangée. */
+    --ct-chart-label: light-dark(#526174, #E6EAF1);
+}
 .stApp { background: var(--ct-bg); color: var(--ct-text); }
 [data-testid="stSidebar"] { background: var(--ct-surface); color: var(--ct-text); }
-.stApp h1, .stApp h2, .stApp h3, .stApp p, .stApp label,
-.stApp [role="tab"], .stApp button { color: var(--ct-text); }
-.stApp [role="tab"][aria-selected="true"] { color: var(--ct-accent); }
-.stSelectbox [role="group"], .stMultiSelect [role="group"],
-.stApp input[role="combobox"] { background: var(--ct-surface); color: var(--ct-text); }
+/* Champs, tableaux canvas, alertes et aides gardent leurs couleurs natives.
+   Les portails div[data-baseweb="popover"], ul[role="listbox"],
+   li[role="option"] (React Aria div dans 1.64) sont volontairement natifs :
+   ne pas leur imposer la palette du :root, qui n'a pas de color-scheme natif. */
 .stSelectbox [role="group"], .stMultiSelect [role="group"] {
     border: 1px solid var(--ct-border); border-radius: 12px;
 }
@@ -16,6 +27,11 @@
 .stApp button:focus-visible, .stApp input:focus-visible {
     outline: 2px solid var(--ct-accent); outline-offset: 2px;
 }
+/* Sélecteurs SVG Plotly publics : conserver titres, légendes et couleurs de données. */
+.stPlotlyChart :is(.xtick, .ytick, .ztick, .cbaxis) text,
+.stPlotlyChart :is(.bartext, .xtitle, .ytitle, .cbtitle) {
+    fill: var(--ct-chart-label) !important;
+}
 .ct-hero { padding: 1rem 0 1.4rem; border-bottom: 1px solid var(--ct-border); }
 .ct-eyebrow { color: var(--ct-accent); letter-spacing: .15em; font-size: .72rem;
               font-weight: 700; margin-bottom: .6rem; }
@@ -24,12 +40,12 @@
 .ct-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
            gap: 1rem; margin: 1.4rem 0; }
 .ct-card { background: var(--ct-surface); border: 1px solid var(--ct-border);
-           border-radius: 16px; padding: 1.2rem; box-shadow: 0 5px 18px #00000008; }
+           border-radius: 16px; padding: 1.2rem; box-shadow: 0 5px 18px var(--ct-shadow); }
 .ct-card .label { color: var(--ct-muted); font-size: .85rem; }
 .ct-card .value { font-size: clamp(1.1rem, 2vw, 1.8rem); font-weight: 700;
                   overflow-wrap: anywhere; margin: .6rem 0; }
 .ct-card .delta { color: var(--ct-muted); font-size: .8rem; }
 .ct-card abbr { cursor: help; text-decoration: underline dotted; }
-#MainMenu, footer { display: none; }
+footer { display: none; }
 @media (max-width: 1000px) { .ct-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 600px) { .ct-grid { grid-template-columns: 1fr; } }

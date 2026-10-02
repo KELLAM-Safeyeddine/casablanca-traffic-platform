@@ -65,19 +65,16 @@ def sidebar(catalog: pd.DataFrame) -> Filters:
             help="Langue des libellés et des formats / Labels and number formats",
         )
         day_names = DAYS[st.session_state.language]
-        appearances = {"light": tr("Clair", "Light"), "dark": tr("Sombre", "Dark")}
         palettes = {"traffic": tr("Trafic", "Traffic"), "cividis": "Cividis · accessible"}
         periods = {
             "all": tr("Toute la semaine", "All"),
             "weekday": tr("Semaine", "Weekdays"),
             "weekend": "Week-end",
         }
-        st.selectbox(
-            tr("Apparence", "Appearance"),
-            ["light", "dark"],
-            key="appearance",
-            format_func=appearances.get,
-            help=tr("Choisir le contraste visuel.", "Choose the visual theme."),
+        # Le sélecteur natif contrôle aussi les canvas et les portails.
+        st.session_state.appearance = st.context.theme.type or "light"
+        st.caption(
+            tr("Thème : menu ⋮ en haut à droite.", "Theme: ⋮ menu at the top right.")
         )
         st.selectbox(
             tr("Palette", "Palette"),
