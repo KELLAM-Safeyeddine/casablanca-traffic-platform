@@ -1,0 +1,20 @@
+[server]
+headless = true
+[browser]
+gatherUsageStats = false
+[client]
+toolbarMode = "minimal"
+showErrorDetails = "none"
+[theme]
+font = "sans serif"
+baseRadius = "large"
+[theme.light]
+primaryColor = "#087F8C"
+backgroundColor = "#F5F7FA"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#172538"
+[theme.dark]
+primaryColor = "#58CCD4"
+backgroundColor = "#0B1220"
+secondaryBackgroundColor = "#162033"
+textColor = "#F1F5F9"

@@ -7,6 +7,6 @@ exclude = ["CasaTraffic", "notebooks"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "dashboard/tests"]
 pythonpath = ["."]
 markers = ["integration: PostgreSQL/PostGIS temporaire via scripts/run_integration_tests.py"]

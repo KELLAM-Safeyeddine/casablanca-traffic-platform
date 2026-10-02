@@ -185,6 +185,8 @@ avec capture avant refonte et contrôle de la sélection vide. Le dashboard
 fonctionnel ci-dessous correspond encore à la version initiale.
 La [maquette textuelle](docs/dashboard_wireframe.md) définit les six onglets,
 les KPI, filtres partageables, thèmes et règles de qualité de la refonte.
+L'[implémentation modulaire](docs/dashboard_implementation.md) est dans `dashboard/`
+et testée localement ; son intégration Docker constitue l'étape suivante.
 
 ![Dashboard avant refonte](docs/screenshots/dashboard_before_redesign.jpg)
 

@@ -1,0 +1,20 @@
+/* Deux points d'ancrage Streamlit, sans classe Emotion ni nth-child. */
+.stApp { background: var(--ct-bg); color: var(--ct-text); }
+[data-testid="stSidebar"] { background: var(--ct-surface); color: var(--ct-text); }
+.ct-hero { padding: 1rem 0 1.4rem; border-bottom: 1px solid var(--ct-border); }
+.ct-eyebrow { color: var(--ct-accent); letter-spacing: .15em; font-size: .72rem;
+              font-weight: 700; margin-bottom: .6rem; }
+.ct-hero h1 { font-size: clamp(1.7rem, 3vw, 2.8rem); line-height: 1.15; margin: 0; }
+.ct-hero p { color: var(--ct-muted); margin: .6rem 0 0; }
+.ct-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+           gap: 1rem; margin: 1.4rem 0; }
+.ct-card { background: var(--ct-surface); border: 1px solid var(--ct-border);
+           border-radius: 16px; padding: 1.2rem; box-shadow: 0 5px 18px #00000008; }
+.ct-card .label { color: var(--ct-muted); font-size: .85rem; }
+.ct-card .value { font-size: clamp(1.1rem, 2vw, 1.8rem); font-weight: 700;
+                  overflow-wrap: anywhere; margin: .6rem 0; }
+.ct-card .delta { color: var(--ct-muted); font-size: .8rem; }
+.ct-card abbr { cursor: help; text-decoration: underline dotted; }
+#MainMenu, footer { display: none; }
+@media (max-width: 1000px) { .ct-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) { .ct-grid { grid-template-columns: 1fr; } }
