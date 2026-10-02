@@ -53,6 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Build dashboard image
-        run: docker build --file Dockerfile.dashboard --tag casatraffic-dashboard-ci:latest .
+        run: docker build --file dashboard/Dockerfile --tag casatraffic-dashboard-ci:latest .
       - name: Runtime dependencies
         run: docker run --rm --entrypoint python casatraffic-dashboard-ci:latest -m pip check

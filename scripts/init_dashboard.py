@@ -35,10 +35,7 @@ def main() -> None:
                 query.execute("CREATE ROLE traffic_dashboard LOGIN")
             query.execute("ALTER ROLE traffic_dashboard PASSWORD %s",
                           (settings["DASHBOARD_DB_PASSWORD"],))
-            query.execute("GRANT CONNECT ON DATABASE traffic TO traffic_dashboard")
-            query.execute("GRANT USAGE ON SCHEMA public TO traffic_dashboard")
-            query.execute("GRANT SELECT ON dim_commune, dim_point, dim_trajectory, "
-                          "fact_travel_time TO traffic_dashboard")
+            query.execute((ROOT / "sql/ddl/05_dashboard_reader.sql").read_text(encoding="utf-8"))
     finally:
         database.close()
     print("OK compte traffic_dashboard : SELECT uniquement, secret dans .env")

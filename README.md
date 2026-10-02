@@ -185,8 +185,14 @@ avec capture avant refonte et contrôle de la sélection vide. Le dashboard
 fonctionnel ci-dessous correspond encore à la version initiale.
 La [maquette textuelle](docs/dashboard_wireframe.md) définit les six onglets,
 les KPI, filtres partageables, thèmes et règles de qualité de la refonte.
-L'[implémentation modulaire](docs/dashboard_implementation.md) est dans `dashboard/`
-et testée localement ; son intégration Docker constitue l'étape suivante.
+L'[implémentation modulaire](docs/dashboard_implementation.md) est dans `dashboard/`.
+Le [déploiement Docker vérifié](docs/dashboard_deployment.md) utilise maintenant
+cette version sur le port 8501, avec compte SQL en lecture seule et collecteur
+de métadonnées séparé. Les contrôles et mesures SQL sont dans
+`docs/dashboard_deployment.json` ; la validation UX exhaustive reste à compléter.
+
+![Nouvelle interface claire](docs/screenshots/dashboard_deployed_light.jpg)
+![Nouvelle interface sombre](docs/screenshots/dashboard_deployed_dark.jpg)
 
 ![Dashboard avant refonte](docs/screenshots/dashboard_before_redesign.jpg)
 

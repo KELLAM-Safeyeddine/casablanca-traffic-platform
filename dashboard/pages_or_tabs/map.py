@@ -1,5 +1,7 @@
 """Carte PostGIS animée par fragment Streamlit, avec alternative tabulaire."""
 
+import logging
+
 import pydeck as pdk
 import streamlit as st
 
@@ -8,6 +10,8 @@ from dashboard.components.filters import local_choice
 from dashboard.components.i18n import DAYS, tr
 from dashboard.data.filters import Filters
 from dashboard.data.queries import fetch
+
+LOGGER = logging.getLogger(__name__)
 
 
 def draw(filters: Filters, day: int, hour: int, mode: str) -> None:
@@ -116,6 +120,16 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
             )
         st.query_params["map_hour"] = str(hour)
         st.markdown(f"**{DAYS[st.session_state.language][day - 1]} · {hour:02d} h**")
-        draw(filters, day, hour, mode)
+        try:
+            draw(filters, day, hour, mode)
+        except Exception:
+            LOGGER.exception("Map frame unavailable")
+            st.session_state.playing = False
+            st.error(
+                tr(
+                    "Carte indisponible. Actualisez les données pour réessayer.",
+                    "Map unavailable. Refresh the data to retry.",
+                )
+            )
 
     frame()

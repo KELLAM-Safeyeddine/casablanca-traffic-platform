@@ -15,3 +15,4 @@ data/quarantine/*
 !data/quarantine/.gitkeep
 *.egg-info/
 .validation/
+data/monitoring/

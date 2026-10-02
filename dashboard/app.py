@@ -77,7 +77,17 @@ def content() -> None:
     names = TABS[st.session_state.language]
     default_id = st.query_params.get("tab", "0")
     default_index = int(default_id) if default_id in {str(i) for i in range(6)} else 0
-    tabs = st.tabs(names, default=names[default_index], key="navigation", on_change="rerun")
+    # Le default participe à l'identité du widget : le figer évite de perdre
+    # le clic suivant lorsque l'URL vient d'être synchronisée.
+    if st.session_state.get("navigation_language") != st.session_state.language:
+        st.session_state.navigation_default = default_index
+        st.session_state.navigation_language = st.session_state.language
+    tabs = st.tabs(
+        names,
+        default=names[st.session_state.navigation_default],
+        key="navigation",
+        on_change="rerun",
+    )
     ids = tuple(sorted(int(v) for v in catalog.commune_id))
     for index, tab in enumerate(tabs):
         if tab.open:

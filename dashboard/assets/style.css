@@ -1,6 +1,18 @@
-/* Deux points d'ancrage Streamlit, sans classe Emotion ni nth-child. */
+/* Classes publiques et rôles accessibles ; aucune classe Emotion ni nth-child. */
 .stApp { background: var(--ct-bg); color: var(--ct-text); }
 [data-testid="stSidebar"] { background: var(--ct-surface); color: var(--ct-text); }
+.stApp h1, .stApp h2, .stApp h3, .stApp p, .stApp label,
+.stApp [role="tab"], .stApp button { color: var(--ct-text); }
+.stApp [role="tab"][aria-selected="true"] { color: var(--ct-accent); }
+.stSelectbox [role="group"], .stMultiSelect [role="group"],
+.stApp input[role="combobox"] { background: var(--ct-surface); color: var(--ct-text); }
+.stSelectbox [role="group"], .stMultiSelect [role="group"] {
+    border: 1px solid var(--ct-border); border-radius: 12px;
+}
+.stApp [data-testid="stHeader"] { background: var(--ct-bg); }
+.stApp button:focus-visible, .stApp input:focus-visible {
+    outline: 2px solid var(--ct-accent); outline-offset: 2px;
+}
 .ct-hero { padding: 1rem 0 1.4rem; border-bottom: 1px solid var(--ct-border); }
 .ct-eyebrow { color: var(--ct-accent); letter-spacing: .15em; font-size: .72rem;
               font-weight: 700; margin-bottom: .6rem; }

@@ -77,5 +77,9 @@ def render(filters: Filters, catalog: tuple[int, ...]) -> None:
             index=False, sep=";" if french else ",", decimal="," if french else "."
         ).encode("utf-8-sig")
         st.download_button(
-            tr("Télécharger CSV", "Download CSV"), content, "casablanca_traffic.csv", "text/csv"
+            tr("Télécharger CSV", "Download CSV"),
+            content,
+            "casablanca_traffic.csv",
+            "text/csv",
+            on_click="ignore",
         )

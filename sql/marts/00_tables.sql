@@ -40,3 +40,11 @@ ALTER TABLE public.mart_commune_features
     ADD COLUMN IF NOT EXISTS tti_p95 double precision NOT NULL,
     ADD COLUMN IF NOT EXISTS speed_mean_kmh double precision NOT NULL,
     ADD COLUMN IF NOT EXISTS tti_gap_count integer NOT NULL;
+
+-- Donner accès aux marts sur un volume neuf, après création des quatre tables.
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'traffic_dashboard') THEN
+        GRANT SELECT ON public.mart_commune_hourly_congestion, public.mart_peak_hours,
+            public.mart_weekday_vs_weekend, public.mart_commune_features TO traffic_dashboard;
+    END IF;
+END $$;

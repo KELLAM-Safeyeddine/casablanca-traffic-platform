@@ -1,0 +1,74 @@
+{
+  "sql_seconds": {
+    "summary": 0.0328,
+    "hourly": 0.0421,
+    "communes": 0.0477,
+    "heatmap": 0.1094,
+    "points": 0.0949,
+    "periods": 0.0526,
+    "period_hourly": 0.0571,
+    "features": 0.0667,
+    "coverage": 0.0091,
+    "export": 0.2672
+  },
+  "counts": {
+    "summary": 1,
+    "hourly": 24,
+    "communes": 22,
+    "heatmap": 528,
+    "points": 110,
+    "periods": 2,
+    "period_hourly": 48,
+    "features": 22,
+    "coverage": 1,
+    "export": 73920
+  },
+  "write_denied": true,
+  "metadata": {
+    "available": true,
+    "collected_at": "2026-10-02T00:35:10.279901+00:00",
+    "dags": [
+      {
+        "dag_id": "bootstrap_dimensions",
+        "state": "success",
+        "run_id": "phase7_bootstrap_df20ff604375462cbaf3b8e500380102",
+        "start_date": "2026-10-01T22:52:20.145985+00:00",
+        "end_date": "2026-10-01T22:52:26.025817+00:00"
+      },
+      {
+        "dag_id": "ingest_traffic",
+        "state": "success",
+        "run_id": "scheduled__2026-10-01T23:00:00+00:00",
+        "start_date": "2026-10-02T00:00:00.842956+00:00",
+        "end_date": "2026-10-02T00:00:42.029140+00:00"
+      },
+      {
+        "dag_id": "data_quality",
+        "state": "success",
+        "run_id": "dataset_triggered__2026-10-02T00:00:41.597741+00:00",
+        "start_date": "2026-10-02T00:00:42.019566+00:00",
+        "end_date": "2026-10-02T00:00:51.010957+00:00"
+      },
+      {
+        "dag_id": "build_marts",
+        "state": "success",
+        "run_id": "dataset_triggered__2026-10-02T00:00:50.605901+00:00",
+        "start_date": "2026-10-02T00:00:50.999753+00:00",
+        "end_date": "2026-10-02T00:00:54.380045+00:00"
+      }
+    ],
+    "quarantine": {
+      "total": 485,
+      "repairable": 314,
+      "warning": 171
+    },
+    "quality": {
+      "status": "passed",
+      "run_id": "dataset_triggered__2026-10-02T00:00:41.597741+00:00",
+      "checked_at": "2026-10-02T00:00:51.010957+00:00",
+      "facts_checked": 73920,
+      "latest_ingestion_end": "2026-10-02T00:00:42.029140+00:00"
+    }
+  },
+  "readonly_role": "traffic_dashboard"
+}

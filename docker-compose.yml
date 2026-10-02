@@ -134,11 +134,15 @@ services:
     image: casablanca-traffic-dashboard:python3.11
     build:
       context: .
-      dockerfile: Dockerfile.dashboard
+      dockerfile: dashboard/Dockerfile
     environment:
       DASHBOARD_DB_HOST: postgres
       DASHBOARD_DB_PASSWORD: ${DASHBOARD_DB_PASSWORD:?Run scripts/init_dashboard.py}
-      STREAMLIT_THEME_PRIMARY_COLOR: "#188b91"
+      DASHBOARD_DB_USER: ${DASHBOARD_DB_USER:-traffic_dashboard}
+      DASHBOARD_DB_NAME: ${DASHBOARD_DB_NAME:-traffic}
+      DASHBOARD_METADATA_ROOT: /app/metadata
+    volumes:
+      - ./data/monitoring:/app/metadata:ro
     ports:
       - "127.0.0.1:${DASHBOARD_PORT:-8501}:8501"
     depends_on:
@@ -150,6 +154,34 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
+    restart: unless-stopped
+
+  dashboard-status:
+    image: ${AIRFLOW_IMAGE:-casablanca-traffic-airflow:2.11.2-python3.11}
+    entrypoint: ["python", "-m", "src.load.dashboard_status"]
+    environment:
+      PYTHONPATH: /opt/airflow
+      STATUS_DB_HOST: postgres
+      STATUS_DB_PASSWORD: ${TRAFFIC_DB_PASSWORD:?Generate .env}
+      STATUS_AIRFLOW_URL: http://airflow-webserver:8080/api/v1
+      STATUS_AIRFLOW_USER: ${AIRFLOW_ADMIN_USERNAME:-admin}
+      STATUS_AIRFLOW_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:?Generate .env}
+      DASHBOARD_STATUS_INTERVAL: ${DASHBOARD_STATUS_INTERVAL:-60}
+    volumes:
+      - ./src:/opt/airflow/src:ro
+      - ./data/quarantine/reports:/opt/airflow/reports:ro
+      - ./data/monitoring:/opt/airflow/monitoring
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-webserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,datetime,pathlib; p=pathlib.Path('/opt/airflow/monitoring/dashboard_status.json'); d=json.loads(p.read_text()); assert (datetime.datetime.now(datetime.timezone.utc)-datetime.datetime.fromisoformat(d['collected_at'])).total_seconds()<180"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
     restart: unless-stopped
 
 volumes:
