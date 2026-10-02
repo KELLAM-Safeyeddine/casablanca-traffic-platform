@@ -374,3 +374,23 @@ du webserver. L'attente API tolère désormais ConnectionError en plus de URLErr
 et TimeoutError ; le second essai complet a réussi. Le bonus ML/corrélation reste
 une extension : les marts livrés permettent une analyse ultérieure sans
 présenter d'association statistique ou de causalité non vérifiée.
+
+## D031 — contrat UX du dashboard refondu (maquette)
+
+dashboard_wireframe.md définit les six onglets avant implémentation. Référence
+globale fixe pour les deltas, p95 calculé au grain réel des faits, attribution
+par commune d'origine et période comparative explicitement indépendante du
+filtre jours/période. Une sélection vide ne signifie jamais toutes les communes.
+Les valeurs maximales ex æquo sont signalées et triées de façon déterministe.
+
+Les métadonnées d'exploitation proviendront de JSON en lecture seule pour ne
+pas élargir les lectures SQL du dashboard à quarantine ou à la base Airflow.
+La date de traitement n'est pas une date d'observation. Les corrélations
+descriptives prévues par la nouvelle demande ne seront pas présentées comme
+des causes ; ajustement/corrélation en SQL et absence de droite sur X constant.
+
+Streamlit 1.64.0 installé possède st.tabs(on_change=...), permettant un rendu
+différé. Inspection locale : st.set_option n'autorise pas theme.base ; aucun
+changement par cette API privée/invalide ne sera utilisé. Le mécanisme de thème
+compatible sera vérifié pendant l'implémentation. La maquette décrit une cible,
+pas des performances, contrastes ou fonctions déjà vérifiés en production.

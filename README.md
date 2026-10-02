@@ -183,6 +183,8 @@ Les preuves de chaque phase, dont l'idempotence des quatre DAGs, sont dans `docs
 La refonte UX commence par l'[audit de l'existant](docs/dashboard_audit.md),
 avec capture avant refonte et contrôle de la sélection vide. Le dashboard
 fonctionnel ci-dessous correspond encore à la version initiale.
+La [maquette textuelle](docs/dashboard_wireframe.md) définit les six onglets,
+les KPI, filtres partageables, thèmes et règles de qualité de la refonte.
 
 ![Dashboard avant refonte](docs/screenshots/dashboard_before_redesign.jpg)
 
