@@ -1,18 +1,86 @@
+# Environnements locaux et secrets
 CasaTraffic/
+.venv/
+venv/
 .env
 .env.*
+*.env
 !.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+.ssh/
+id_rsa
+id_ed25519
+
+# Python et notebooks (les notebooks sources restent versionnés)
 __pycache__/
 *.py[cod]
+*.egg-info/
+dist/
+build/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
 .ipynb_checkpoints/
+
+# Volumes et configuration Docker locale
+pgdata/
+postgres_data/
+metabase_data/
+minio_data/
+docker-compose.override.yml
+
+# Airflow : conserver les marqueurs et les instructions du dossier
 logs/*
 !logs/.gitkeep
+!logs/README.md
+airflow.db
+airflow-webserver.pid
+standalone_admin_password.txt
+
+# Données reproductibles : conserver la structure et les instructions
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/README.md
 data/quarantine/*
 !data/quarantine/.gitkeep
-*.egg-info/
+!data/quarantine/README.md
+data/processed/*
+!data/processed/.gitkeep
+!data/processed/README.md
+data/monitoring/*
+!data/monitoring/.gitkeep
+!data/monitoring/README.md
+*.parquet
+docs/profiling/*.csv
+*.sql.gz
+*.dump
+*.sqlite
+*.sqlite3
+
+# IDE et système (configurations VS Code partageables autorisées)
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+*.swp
+
+# Temporaires et preuves locales non livrables
+*.log
+*.tmp
+*.bak
+tmp/
+.cache/
 .validation/
-data/monitoring/
+
+# Le classeur data/source/*.xlsx est publié avec l'accord de l'utilisateur.
+# Les rapports documentaires, les captures et les fixtures CSV restent autorisés.

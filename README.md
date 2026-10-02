@@ -254,3 +254,24 @@ Extensions possibles : données datées supplémentaires, historique des snapsho
 alertes externes configurées, tableau Metabase, déploiement avec TLS et sauvegardes,
 modèles de congestion après validation statistique. Spark, Kafka et dbt ne sont
 pas nécessaires au volume actuel et ne sont pas implémentés.
+
+## Fichiers versionnés et données générées
+
+Le [rapport de nettoyage du dépôt](docs/repository_cleanup_audit.md) détaille les
+exclusions Git. Le classeur source reste livré avec l'accord de publication de
+l'utilisateur ; les sorties de profilage CSV/Parquet se régénèrent localement :
+
+```powershell
+.\CasaTraffic\Scripts\python.exe scripts/profile_workbook.py
+```
+
+Les cellules des notebooks restent versionnées sans sorties volumineuses.
+Après exécution, vider leurs sorties avant de les ajouter à Git :
+
+```powershell
+.\CasaTraffic\Scripts\python.exe -m nbconvert --clear-output --inplace notebooks/02_source_profiling.ipynb
+```
+
+`.env.example`, configurations, rapports documentaires et captures sont conservés.
+Les secrets locaux, environnements, volumes, caches, logs et données générées
+restent sur disque et sont ignorés par Git.
